@@ -9,6 +9,7 @@ const Input = ({
   defaultValue,
   onBlur,
   onChange,
+  onKeyDown,
   className = "",
   min,
   max,
@@ -42,6 +43,7 @@ const Input = ({
         value={value}
         defaultValue={defaultValue}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         onBlur={onBlur}
         min={min}
         max={max}

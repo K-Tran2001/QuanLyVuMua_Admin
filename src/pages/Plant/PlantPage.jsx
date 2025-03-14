@@ -20,6 +20,8 @@ import Input from "../../components/form/input/InputField";
 import { useNavigate } from "react-router";
 import { GetAllForm, SeachForm } from "../../api/formService";
 import EmptyData from "../../components/no-data/EmptyData";
+import { GetAllPlant } from "../../api/plantService";
+import LottieComponent from "../../components/lotties/lottie";
 
 const PlantPage = () => {
   const navigate = useNavigate();
@@ -102,7 +104,7 @@ const PlantPage = () => {
       return;
     }
     setIsBusy(true);
-    GetAllForm(filterPage)
+    GetAllPlant(filterPage)
       .then((res) => {
         console.log("res", res);
 
@@ -112,12 +114,15 @@ const PlantPage = () => {
       })
       .catch((err) => {})
       .finally(() => {
-        setIsBusy(true);
+        setIsBusy(false);
       });
   };
+  console.log("isBusy", isBusy);
+
   React.useEffect(() => {
     LoadData();
   }, [filterPage]);
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Plants" preLink="" />
@@ -241,7 +246,7 @@ const PlantPage = () => {
                   <TableRow
                     onClick={() => setActiveRow(item)}
                     onDoubleClick={() => {
-                      setVisibleModal(true);
+                      navigate(`edit/${item._id}`);
                     }}
                     key={item._id}
                     className="hover:shadow-sm hover:bg-gray-100"
@@ -250,7 +255,11 @@ const PlantPage = () => {
                       <div className="flex items-center gap-3">
                         <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
                           <img
-                            src={"images/orther/empty.png"}
+                            src={
+                              item.images.length > 0
+                                ? item.images[0].imageAbsolutePath
+                                : "images/orther/empty.png"
+                            }
                             className="h-[50px] w-[50px]"
                             alt={item.name}
                             style={{ objectFit: "contain" }}
@@ -266,6 +275,11 @@ const PlantPage = () => {
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell className="py-3 px-2">
+                      <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                        {item?.categoryName}
+                      </p>
+                    </TableCell>
 
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <div className="flex item-center gap-3">
@@ -274,7 +288,7 @@ const PlantPage = () => {
                           size="sm"
                           children={"Edit"}
                           onClick={() => {
-                            navigate(`/edit/${item._id}`);
+                            navigate(`edit/${item._id}`);
                           }}
                         />
                         <Button
@@ -343,7 +357,18 @@ const PlantPage = () => {
             </TableBody>
           </Table>
         </div>
-        {data?.length > 0 ? <Pagination pageFilter={{}} /> : <EmptyData />}
+
+        {isBusy && <LottieComponent />}
+
+        {!isBusy ? (
+          data?.length > 0 ? (
+            <Pagination pageFilter={{}} />
+          ) : (
+            <EmptyData />
+          )
+        ) : (
+          <></>
+        )}
         <Modal
           isOpen={visibleModal}
           setIsOpen={setVisibleModal}

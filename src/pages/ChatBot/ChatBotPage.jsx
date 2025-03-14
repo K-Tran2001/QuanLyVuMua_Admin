@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   Table,
@@ -27,106 +27,104 @@ import {
   SaveCategory,
   UpdateCategory,
 } from "../../api/categoryService";
+import MessageItem from "./MessageItem";
+import { ChatWithGemini } from "../../api/geminiService";
+import MessageByUserItem from "./MessageByUserItem";
 
 const ChatBotPage = () => {
-  const [isBusy, setIsBusy] = React.useState(false);
-  const [activeRow, setActiveRow] = React.useState(null);
-  const [visibleModal, setVisibleModal] = React.useState(false);
-  const [isAddNew, setIsAddNew] = React.useState(false);
-  const [data, setData] = React.useState([{ _id: 123, name: "item1" }]);
+  const [isBusy, setIsBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
+  const [chatHistory, setChatHistory] = useState([
+    { role: "user", text: "Hello" },
+    { role: "model", text: "Great to meet you. What would you like to know?" },
+    { role: "user", text: "Hello" },
+    { role: "model", text: "Great to meet you. What would you like to know?" },
+  ]);
 
-  const [request, setRequest] = React.useState(null);
-  const [filterPage, setFilterPage] = React.useState({
-    keySearch: "",
-    sort: {},
-    page: 1,
-    pageSize: 10,
-  });
+  const chatContainerRef = useRef(null);
 
-  const LoadData = async () => {
-    //const response = await GetAllForm(filterPage);
-    if (isBusy) {
-      return;
+  useEffect(() => {
+    // Cuộn xuống dưới cùng khi chatHistory thay đổi
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
-    setIsBusy(true);
-    GetAllCategory(filterPage)
-      .then((res) => {
-        if (res.success) {
-          setData(res.data);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsBusy(false);
-      });
-  };
-  console.log(request);
+  }, [chatHistory]);
 
-  const SaveData = async () => {
-    //const response = await GetAllForm(filterPage);
-    if (isBusy) {
-      return;
-    }
-    setIsBusy(true);
-    SaveCategory(request)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsBusy(false);
+  const handleSendMessage = async () => {
+    try {
+      setChatHistory([...chatHistory, { role: "user", text: message }]);
+      setIsBusy(true);
+      const res = await ChatWithGemini({
+        chatHistory: JSON.stringify(chatHistory),
+        userMessage: message,
       });
+      var modelResponse = "...";
+      if (res.success) {
+        modelResponse = res.data;
+      }
+
+      setChatHistory([
+        ...chatHistory,
+        { role: "user", text: message },
+        { role: "model", text: modelResponse },
+      ]);
+      setResponse(modelResponse);
+      setMessage("");
+      setIsBusy(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
-  const UpdateData = async () => {
-    //const response = await GetAllForm(filterPage);
-    if (isBusy) {
-      return;
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSendMessage();
     }
-    setIsBusy(true);
-    UpdateCategory(request._id, request)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsBusy(false);
-      });
   };
-
-  const DeleteData = async (id) => {
-    //const response = await GetAllForm(filterPage);
-    if (isBusy) {
-      return;
-    }
-    setIsBusy(true);
-    DeleteCategory(id)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsBusy(false);
-      });
+  const handleClearHistory = () => {
+    setChatHistory([]);
   };
-
-  React.useEffect(() => {
-    LoadData();
-  }, [filterPage]);
+  console.log("chatHistory", chatHistory);
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Chat Bot" preLink="" />
-      <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-        Chat Bot
+      <div className="relative h-[calc(100vh-130px)] max-h-[calc(100vh+300px)] flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+        {/* Khu vực hiển thị tin nhắn */}
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto space-y-2 p-2"
+          style={{ maxHeight: "70vh" }}
+        >
+          {chatHistory.length > 0 ? (
+            chatHistory.map((mess) => (
+              <div key={Math.random()}>
+                {mess.role === "model" ? (
+                  <MessageItem data={mess} />
+                ) : (
+                  <MessageByUserItem data={mess} />
+                )}
+              </div>
+            ))
+          ) : (
+            <></>
+          )}
+        </div>
+
+        {/* Ô nhập tin nhắn cố định ở đáy */}
+        <div className=" sticky bottom-0  border-t p-2 flex gap-2 items-center border-gray-200 dark:border-gray-800">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Nhập tin nhắn..."
+            className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
+          />
+
+          <Button children={"Gửi"} size="sm" onClick={handleSendMessage} />
+        </div>
       </div>
     </div>
   );

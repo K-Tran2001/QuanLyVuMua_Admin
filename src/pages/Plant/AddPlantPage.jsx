@@ -4,7 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import MyCkEditor from "../../components/my-ckeditor/MyCkEditor";
 import Select from "../../components/form/Select";
 import Tooltip from "../../components/tooltip/Tooltip";
@@ -21,6 +21,7 @@ import { GetAllCategory, GetAllCategoryFK } from "../../api/categoryService";
 const TYPE_OF_DATA_IMG_RETURN = "file"; //file or base64String
 const AddPlantPage = () => {
   const { id } = useParams();
+  const navigation = useNavigate();
 
   const [isBusy, setIsBusy] = React.useState(false);
   const [images, setImages] = React.useState([]);
@@ -28,7 +29,7 @@ const AddPlantPage = () => {
   const [isEdit, setIsEdit] = React.useState(false);
 
   const [request, setRequest] = React.useState({
-    categoryId: "67d15bf94fada66e9cd56f0e",
+    categoryId: "",
   });
   const [categories, setCategories] = React.useState([]);
 
@@ -54,7 +55,7 @@ const AddPlantPage = () => {
     SavePlant_UploadMutli(request_v2)
       .then((response) => {
         if (response.success) {
-          alert("Lưu thành công");
+          navigation("/plants");
         }
       })
       .catch((err) => console.log(err))
@@ -101,7 +102,7 @@ const AddPlantPage = () => {
     UpdatePlant_UploadMutli(id, request_v2)
       .then((response) => {
         if (response.success) {
-          alert("Lưu thành công");
+          navigation("/plants");
         }
       })
       .catch((err) => console.log(err))
@@ -123,6 +124,14 @@ const AddPlantPage = () => {
   };
 
   const LoadData = async () => {
+    SeachPlant(id).then((response) => {
+      if (response.success) {
+        setRequest(response.data[0]);
+        setImages(response.data[0].images);
+      }
+    });
+  };
+  const LoadDataFK = async () => {
     GetAllCategoryFK()
       .then((res) => {
         if (res.success) {
@@ -133,12 +142,6 @@ const AddPlantPage = () => {
         console.log(err);
       })
       .finally(() => {});
-    SeachPlant(id).then((response) => {
-      if (response.success) {
-        setRequest(response.data[0]);
-        setImages(response.data[0].images);
-      }
-    });
   };
   const handleDeleteImage = (img) => {
     var indexToRemove = images.indexOf(img);
@@ -153,6 +156,7 @@ const AddPlantPage = () => {
   };
 
   React.useEffect(() => {
+    LoadDataFK();
     if (id !== undefined) {
       setIsEdit(true);
       LoadData();
@@ -247,7 +251,11 @@ const AddPlantPage = () => {
                       <div className="flex items-center space-x-4 border border-gray-300 dark:border-gray-700 rounded-lg relative my-4 p-2">
                         <div className=" w-[100px] h-[100px]  ">
                           <img
-                            src={itemImg.imageAbsolutePath}
+                            src={
+                              itemImg.isNewUpload
+                                ? itemImg.imageBase64String
+                                : itemImg.imageAbsolutePath
+                            }
                             className="w-full h-full"
                             style={{ objectFit: "contain" }}
                           />
