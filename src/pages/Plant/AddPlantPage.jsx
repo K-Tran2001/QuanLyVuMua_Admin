@@ -56,7 +56,7 @@ const AddPlantPage = () => {
       };
     }
 
-    uploadImgurMulti(request_v2)
+    SavePlant_UploadMutli(request_v2)
       .then((response) => {
         if (response.success) {
           navigation("/plants");
