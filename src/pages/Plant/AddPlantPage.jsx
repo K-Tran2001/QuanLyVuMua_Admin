@@ -17,6 +17,10 @@ import {
 import DropzoneComponentV2 from "../../components/form/form-elements/DropZoneV2";
 import { CloseIcon } from "../../icons";
 import { GetAllCategory, GetAllCategoryFK } from "../../api/categoryService";
+import {
+  uploadCloudinaryMulti,
+  uploadImgurMulti,
+} from "../../api/testUploadService";
 
 const TYPE_OF_DATA_IMG_RETURN = "file"; //file or base64String
 const AddPlantPage = () => {
@@ -52,7 +56,7 @@ const AddPlantPage = () => {
       };
     }
 
-    SavePlant_UploadMutli(request_v2)
+    uploadImgurMulti(request_v2)
       .then((response) => {
         if (response.success) {
           navigation("/plants");
