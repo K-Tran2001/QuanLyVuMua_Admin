@@ -362,6 +362,12 @@ export const MainProvider = ({ children }) => {
       setDataTranslate(response.data);
     }
   }
+  //drawer
+  const [drawer, setDrawer] = React.useState({
+    isOpen: false,
+    position: "rightDrawer",
+    onConfirm: () => {},
+  });
 
   return (
     <MainContext.Provider
@@ -376,6 +382,8 @@ export const MainProvider = ({ children }) => {
         getDataTranslate,
         dataTranslate,
         setDataTranslate,
+        drawer,
+        setDrawer,
       }}
     >
       {children}

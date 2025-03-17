@@ -2,6 +2,7 @@ import React from "react";
 
 const Input = ({
   type = "text",
+  ref,
   id,
   name,
   placeholder,
@@ -35,6 +36,7 @@ const Input = ({
   return (
     <div className="relative">
       <input
+        ref={ref}
         readOnly={readOnly}
         type={type}
         id={id}

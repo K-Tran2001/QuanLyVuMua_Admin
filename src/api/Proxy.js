@@ -12,6 +12,7 @@ export const Proxy = async (method, api, request, isUseToken = true) => {
       
       result.success = response.data?.success;
       result.data = response?.data?.data;
+      result.metaData = response?.data?.metaData;
     } else if (method.toLowerCase() === "post_multi") {
       const response = await axios.post(import.meta.env.VITE_BACKEND_URL+api, request, {
         headers: { "Content-Type": "multipart/form-data" },

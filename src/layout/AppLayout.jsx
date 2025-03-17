@@ -4,6 +4,8 @@ import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
 import "../App.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LayoutContent = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -14,6 +16,7 @@ const LayoutContent = () => {
         <AppSidebar />
         <Backdrop />
       </div>
+
       <div
         className={`flex-1 transition-all duration-300 ease-in-out ${
           isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
@@ -31,6 +34,8 @@ const LayoutContent = () => {
 const AppLayout = () => {
   return (
     <SidebarProvider>
+      <ToastContainer />
+
       <LayoutContent />
     </SidebarProvider>
   );

@@ -9,10 +9,10 @@ import MyCkEditor from "../../components/my-ckeditor/MyCkEditor";
 import Select from "../../components/form/Select";
 import Tooltip from "../../components/tooltip/Tooltip";
 import {
-  SavePlant_UploadMutli,
-  SeachPlant,
-  UpdatePlant_UploadMutli,
-} from "../../api/plantService";
+  SavePesticide_UploadMutli,
+  SeachPesticide,
+  UpdatePesticide_UploadMutli,
+} from "../../api/pesticideService";
 import DropzoneComponentV2 from "../../components/form/form-elements/DropZoneV2";
 import { CloseIcon } from "../../icons";
 import { GetAllCategoryFK } from "../../api/categoryService";
@@ -20,7 +20,7 @@ import { GetAllCategoryFK } from "../../api/categoryService";
 import { toast } from "react-toastify";
 
 const TYPE_OF_DATA_IMG_RETURN = "file"; //file or base64String
-const AddPlantPage = () => {
+const AddPesticidePage = () => {
   const { id } = useParams();
   const navigation = useNavigate();
 
@@ -54,11 +54,11 @@ const AddPlantPage = () => {
       };
     }
 
-    SavePlant_UploadMutli(request_v2)
+    SavePesticide_UploadMutli(request_v2)
       .then((response) => {
         if (response.success) {
           toast.success("Create Success!");
-          navigation("/plants");
+          navigation("/pesticides");
         }
       })
       .catch((err) => console.log(err))
@@ -105,10 +105,10 @@ const AddPlantPage = () => {
       };
     }
 
-    UpdatePlant_UploadMutli(id, request_v2)
+    UpdatePesticide_UploadMutli(id, request_v2)
       .then((response) => {
         if (response.success) {
-          navigation("/plants");
+          navigation("/pesticides");
           toast.success("Update Success!");
         }
       })
@@ -131,7 +131,7 @@ const AddPlantPage = () => {
   };
 
   const LoadData = async () => {
-    SeachPlant(id).then((response) => {
+    SeachPesticide(id).then((response) => {
       if (response.success) {
         setRequest(response.data[0]);
         setImages(response.data[0].images);
@@ -199,8 +199,8 @@ const AddPlantPage = () => {
     <div>
       <PageBreadcrumb
         pageTitle={isEdit ? "Edit" : "Add new"}
-        prePageTitle="Plants"
-        preLink="plants"
+        prePageTitle="Pesticides"
+        preLink="pesticides"
       />
       <div className=" min-h-[calc(100vh-180px)] custom-scrollbar overflow-hidden  rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-6">
@@ -320,4 +320,4 @@ const AddPlantPage = () => {
   );
 };
 
-export default AddPlantPage;
+export default AddPesticidePage;

@@ -31,34 +31,35 @@ const navItems = [
   },
   {
     icon: <CalenderIcon />,
-    name: "Thuoc BVTV",
-    path: "/pesticides",
-  },
-  {
-    icon: <CalenderIcon />,
     name: "Loai cay",
     path: "/plant-categories",
   },
   {
     icon: <CalenderIcon />,
-    name: "Loai thuoc",
-    path: "/pesticide-categories",
+    name: "Thuoc BVTV",
+    path: "/pesticides",
   },
-  {
-    icon: <CalenderIcon />,
-    name: "Vuon",
-    path: "/gardents",
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Doi tac",
-    path: "/partners",
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Mua - ban",
-    path: "/bills",
-  },
+
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Loai thuoc",
+  //   path: "/pesticide-categories",
+  // },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Vuon",
+  //   path: "/gardents",
+  // },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Doi tac",
+  //   path: "/partners",
+  // },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Mua - ban",
+  //   path: "/bills",
+  // },
   {
     icon: <CalenderIcon />,
     name: "Lịch",

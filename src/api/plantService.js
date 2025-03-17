@@ -31,4 +31,23 @@ export async function SeachPlant(id,request) {
     
     return await Proxy("post","/plant/search/"+id, request);
 }
+
+export async function DeletePlant(id,request) {
+    
+    return await Proxy("post","/plant/delete/"+id, request);
+}
+
+export async function ImportPlant(request) {
+    
+    return await Proxy("post","/plant/import", request);
+}
+export async function ExportPlant(request) {
+    
+    return await Proxy("post","/plant/export", request);
+}
+
+export async function ExportAllPlant() {
+    
+    return await Proxy("post","/plant/export-all");
+}
   

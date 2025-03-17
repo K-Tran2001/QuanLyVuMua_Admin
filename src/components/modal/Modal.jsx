@@ -6,6 +6,7 @@ export default function Modal({
   variant = 1,
   title,
   children,
+  onClose = () => {},
   onConfirm,
   textButtomClose = "Close",
   textButtomConfirm = "Save Changes",
@@ -17,12 +18,18 @@ export default function Modal({
     <div className="fixed inset-0 flex items-center justify-center p-5 overflow-y-auto z-[99999]">
       <div
         className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px] opacity-70"
-        onClick={() => setIsOpen(false)}
+        onClick={() => {
+          setIsOpen(false);
+          onClose();
+        }}
       ></div>
-      <div className="max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar relative w-full max-w-[600px] rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-10">
+      <div className=" max-h-[calc(100vh-20px)] overflow-y-auto custom-scrollbar relative w-full max-w-[600px] rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-10">
         {/* Close button */}
         <button
-          onClick={() => setIsOpen(false)}
+          onClick={() => {
+            setIsOpen(false);
+            onClose();
+          }}
           className="absolute right-3 top-3 z-10 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
         >
           <svg
@@ -51,7 +58,10 @@ export default function Modal({
 
           <div className="flex items-center justify-end w-full gap-3 mt-8">
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                onClose();
+              }}
               type="button"
               className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
             >

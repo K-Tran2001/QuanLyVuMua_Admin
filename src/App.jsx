@@ -21,6 +21,7 @@ import CategoryPage from "./pages/Category/CategoryPage";
 import "./App.css";
 import ChatBotPage from "./pages/ChatBot/ChatBotPage";
 import CalendarPage from "./pages/CalendarPage/CalendarPage";
+import AddPesticidePage from "./pages/Pesticide/AddPesticidePage";
 
 export default function App() {
   return (
@@ -45,8 +46,18 @@ export default function App() {
               <Route index path="/plants" element={<PlantPage />} />
               <Route index path="/plants/add" element={<AddPlantPage />} />
               <Route index path="/plants/edit/:id" element={<AddPlantPage />} />
-              <Route index path="/plants" element={<PlantPage />} />
+
               <Route index path="/pesticides" element={<PesticidePage />} />
+              <Route
+                index
+                path="/pesticides/add"
+                element={<AddPesticidePage />}
+              />
+              <Route
+                index
+                path="/pesticides/edit/:id"
+                element={<AddPesticidePage />}
+              />
               <Route index path="/gardents" element={<GardentPage />} />
               <Route index path="/gardents/add" element={<AddGardentPage />} />
               <Route index path="/partners" element={<PartnerPage />} />

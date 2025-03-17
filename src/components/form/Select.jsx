@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 const Select = ({
   options,
@@ -8,13 +8,17 @@ const Select = ({
   defaultValue = "",
 }) => {
   // Manage the selected value
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
+  const [selectedValue, setSelectedValue] = useState();
 
   const handleChange = (e) => {
     const value = e.target.value;
     setSelectedValue(value);
     onChange(value); // Trigger parent handler
   };
+
+  React.useEffect(() => {
+    setSelectedValue(defaultValue);
+  }, [defaultValue]);
 
   return (
     <select
@@ -38,7 +42,7 @@ const Select = ({
       {options?.length > 0 &&
         options.map((option) => (
           <option
-            key={option.value}
+            key={Math.random()}
             value={option.value}
             className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
           >

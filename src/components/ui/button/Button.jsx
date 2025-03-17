@@ -18,6 +18,8 @@ const Button = ({
 
   // Variant Classes
   const variantClasses = {
+    excel:
+      "bg-green-500 text-white shadow-theme-xs hover:bg-green-600 disabled:bg-green-300",
     primary:
       "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300",
     outline:

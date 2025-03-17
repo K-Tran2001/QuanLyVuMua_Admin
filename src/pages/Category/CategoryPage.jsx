@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   Table,
@@ -7,95 +7,41 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import Badge from "../../components/ui/badge/Badge";
-import Pagination from "../../components/ui/pagination";
-import { BoxIcon, MoreDotIcon } from "../../icons";
-import { Dropdown } from "../../components/ui/dropdown/Dropdown";
-import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import Button from "../../components/ui/button/Button";
 import Modal from "../../components/modal/Modal";
 import Label from "../../components/form/Label";
-import TextArea from "../../components/form/input/TextArea";
 import Input from "../../components/form/input/InputField";
-import { useNavigate } from "react-router";
-import { GetAllForm, SeachForm } from "../../api/formService";
 import EmptyData from "../../components/no-data/EmptyData";
-import RowAddComponent from "./RowAddComponent";
 import {
   DeleteCategory,
   GetAllCategory,
   SaveCategory,
   UpdateCategory,
 } from "../../api/categoryService";
+import { debounce } from "lodash";
+import MyPagination from "../../components/ui/pagination/MyPagination";
+import LottieComponent from "../../components/lotties/lottie";
+import { toast } from "react-toastify";
+import VariantModal from "../../components/modal/VariantModal";
 
 const CategoryPage = () => {
-  const navigate = useNavigate();
-  const tableData = [
-    {
-      id: 1,
-      name: "MacBook Pro 13”",
-      variants: "2 Variants",
-      category: "Laptop",
-      price: "$2399.00",
-      status: "Publish",
-      image: "/images/product/product-01.jpg", // Replace with actual image URL
-    },
-    {
-      id: 2,
-      name: "Apple Watch Ultra",
-      variants: "1 Variant",
-      category: "Watch",
-      price: "$879.00",
-      status: "Save",
-      image: "/images/product/product-02.jpg", // Replace with actual image URL
-    },
-    {
-      id: 3,
-      name: "iPhone 15 Pro Max",
-      variants: "2 Variants",
-      category: "SmartPhone",
-      price: "$1869.00",
-      status: "Publish",
-      image: "/images/product/product-03.jpg", // Replace with actual image URL
-    },
-    {
-      id: 4,
-      name: "iPad Pro 3rd Gen",
-      variants: "2 Variants",
-      category: "Electronics",
-      price: "$1699.00",
-      status: "Conflic",
-      image: "/images/product/product-04.jpg", // Replace with actual image URL
-    },
-    {
-      id: 5,
-      name: "AirPods Pro 2nd Gen",
-      variants: "1 Variant",
-      category: "Accessories",
-      price: "$240.00",
-      status: "Publish",
-      image: "/images/product/product-05.jpg", // Replace with actual image URL
-    },
-  ];
+  const REQUEST_INIT = { name: "", type: "plant" };
   const [isBusy, setIsBusy] = React.useState(false);
-  const [activeRow, setActiveRow] = React.useState(null);
   const [visibleModal, setVisibleModal] = React.useState(false);
   const [isAddNew, setIsAddNew] = React.useState(false);
-  const [data, setData] = React.useState([{ _id: 123, name: "item1" }]);
-
-  const [request, setRequest] = React.useState(null);
+  const [data, setData] = React.useState([]);
+  const [errors, setErrors] = React.useState([]);
+  const [totalRecords, setTotalRecords] = React.useState(0);
+  const [keySearch, setKeySearch] = React.useState("");
+  const [request, setRequest] = React.useState(REQUEST_INIT);
   const [filterPage, setFilterPage] = React.useState({
+    typeReq: "plant",
     keySearch: "",
     sort: {},
     page: 1,
     pageSize: 10,
   });
 
-  const handleHref = (path) => {
-    if (path) {
-      window.open(path, "_blank");
-    }
-  };
   const LoadData = async () => {
     //const response = await GetAllForm(filterPage);
     if (isBusy) {
@@ -106,6 +52,7 @@ const CategoryPage = () => {
       .then((res) => {
         if (res.success) {
           setData(res.data);
+          setTotalRecords(res.metaData.totalRecords);
         }
       })
       .catch((err) => {
@@ -115,21 +62,31 @@ const CategoryPage = () => {
         setIsBusy(false);
       });
   };
-  console.log(request);
+  console.log("request", request);
 
-  const handleAddData = () => {
-    setData([...data, { ...request, _id: Math.random() }]);
+  const onVatidate = () => {
+    if (request?.name?.length === 0) {
+      setErrors([...errors, "name"]);
+      return false;
+    }
+    return true;
   };
 
   const SaveData = async () => {
-    //const response = await GetAllForm(filterPage);
     if (isBusy) {
       return;
     }
-    setIsBusy(true);
+    if (!onVatidate()) {
+      return;
+    }
+
     SaveCategory(request)
       .then((res) => {
-        console.log(res);
+        if (res.success) {
+          toast.success("Create Success!");
+          setVisibleModal(false);
+          LoadData();
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -138,42 +95,63 @@ const CategoryPage = () => {
         setIsBusy(false);
       });
   };
+  console.log(errors);
 
   const UpdateData = async () => {
-    //const response = await GetAllForm(filterPage);
     if (isBusy) {
+      return;
+    }
+    if (!onVatidate()) {
       return;
     }
     setIsBusy(true);
     UpdateCategory(request._id, request)
       .then((res) => {
-        console.log(res);
+        if (res.success) {
+          toast.success("Update Success!");
+          setVisibleModal(false);
+          LoadData();
+        }
       })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
+        setIsAddNew(true);
         setIsBusy(false);
       });
   };
 
   const DeleteData = async (id) => {
-    //const response = await GetAllForm(filterPage);
     if (isBusy) {
       return;
     }
+
     setIsBusy(true);
     DeleteCategory(id)
       .then((res) => {
-        console.log(res);
+        if (res.success) {
+          toast.success("Delete Success!");
+          LoadData();
+        }
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
+        toast.error("Delete Failed!");
       })
       .finally(() => {
         setIsBusy(false);
       });
   };
+  const onDebounce = React.useCallback(
+    debounce((term) => {
+      setFilterPage({
+        ...filterPage,
+        keySearch: term.trim(),
+        page: 1,
+      });
+    }, 700),
+    []
+  );
 
   React.useEffect(() => {
     LoadData();
@@ -209,10 +187,11 @@ const CategoryPage = () => {
               <input
                 type="text"
                 placeholder="Search ..."
-                value={filterPage.keySearch}
-                onChange={(e) =>
-                  setFilterPage({ ...filterPage, keySearch: e.target.value })
-                }
+                value={keySearch}
+                onChange={(e) => {
+                  setKeySearch(e.target.value);
+                  onDebounce(e.target.value);
+                }}
                 className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[230px]"
               />
             </div>
@@ -222,7 +201,11 @@ const CategoryPage = () => {
             <Button
               size="sm"
               children={"Add new"}
-              onClick={() => setVisibleModal(true)}
+              onClick={() => {
+                setIsAddNew(true);
+                setRequest(REQUEST_INIT);
+                setVisibleModal(true);
+              }}
             />
           </div>
         </div>
@@ -250,77 +233,99 @@ const CategoryPage = () => {
             {/* Table Body */}
 
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {data?.length > 0 &&
-                data.map((item) => (
-                  <TableRow
-                    onClick={() => setActiveRow(item)}
-                    onDoubleClick={() => {
-                      setVisibleModal(true);
-                    }}
-                    key={item._id}
-                    className=""
-                  >
-                    <TableCell className="py-3 px-2">
-                      <div className="flex items-center gap-3">
-                        <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                          <img
-                            src={"images/orther/empty.png"}
-                            className="h-[50px] w-[50px]"
-                            alt={item.name}
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
-                        <div className="w-[300px] truncate">
-                          <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item?.name}
-                          </p>
-                          <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                            {item?.discription}
-                          </span>
-                        </div>
-                      </div>
-                    </TableCell>
+              {isBusy ? (
+                <TableRow>
+                  <TableCell colSpan={3}>
+                    <LottieComponent />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <>
+                  {data?.length > 0 &&
+                    data.map((item) => (
+                      <TableRow
+                        onClick={() => setRequest(item)}
+                        onDoubleClick={() => {
+                          setIsAddNew(false);
+                          setVisibleModal(true);
+                          setRequest(item);
+                        }}
+                        key={item._id}
+                        className=""
+                      >
+                        <TableCell className="py-3 px-2">
+                          <div className="flex items-center gap-3">
+                            <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
+                              <img
+                                src={"images/orther/empty.png"}
+                                className="h-[50px] w-[50px]"
+                                alt={item.name}
+                                style={{ objectFit: "contain" }}
+                              />
+                            </div>
+                            <div className="w-[300px] truncate">
+                              <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {item?.name}
+                              </p>
+                              <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                                {item?.discription}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
 
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div className="flex item-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          children={"Edit"}
-                          onClick={() => {
-                            setVisibleModal(true);
-                            setRequest(item);
-                          }}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          children={"Delete"}
-                          onClick={() => {
-                            DeleteData(item._id);
-                          }}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                          <div className="flex item-center gap-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              children={"Edit"}
+                              onClick={() => {
+                                setIsAddNew(false);
+                                setVisibleModal(true);
+                                setRequest(item);
+                              }}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              children={"Delete"}
+                              onClick={() => {
+                                DeleteData(item._id);
+                              }}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </>
+              )}
             </TableBody>
           </Table>
         </div>
 
-        {data?.length > 0 ? (
-          <Pagination pageFilter={{}} />
-        ) : isAddNew ? (
-          <></>
+        {!isBusy ? (
+          data?.length > 0 ? (
+            <MyPagination
+              filterPage={filterPage}
+              setFilterPage={setFilterPage}
+              totalRecords={totalRecords}
+            />
+          ) : (
+            <EmptyData />
+          )
         ) : (
-          <EmptyData />
+          <></>
         )}
-        <Modal
+        <VariantModal
           isOpen={visibleModal}
           setIsOpen={setVisibleModal}
-          title={"Add new"}
+          onClose={() => {
+            setErrors([]);
+            setRequest(REQUEST_INIT);
+          }}
+          title={isAddNew ? "Add new" : "Update"}
           onConfirm={() => {
-            setVisibleModal(false);
             isAddNew ? SaveData() : UpdateData();
           }}
         >
@@ -328,6 +333,10 @@ const CategoryPage = () => {
             <div>
               <Label children={"Name"} />
               <Input
+                {...{
+                  error: errors.includes("name"),
+                  hint: errors.includes("name") ? "Required field" : "",
+                }}
                 value={request?.name}
                 onChange={(e) =>
                   setRequest({ ...request, name: e.target.value })
@@ -335,7 +344,7 @@ const CategoryPage = () => {
               />
             </div>
           </div>
-        </Modal>
+        </VariantModal>
       </div>
     </div>
   );

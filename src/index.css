@@ -815,3 +815,16 @@ span.flatpickr-weekday,
   @apply visible z-50;
 } */
 
+.rc-pagination-options-quick-jumper input {
+  width: 40px !important;  /* Giảm chiều rộng */
+  padding: 4px 6px !important;  /* Giảm padding */
+  margin-left: 5px;
+  margin-right: 5px;
+  text-align: center;
+  white-space: 5px;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+.Toastify__toast-container {
+  z-index: 99999999999999 !important;
+}
