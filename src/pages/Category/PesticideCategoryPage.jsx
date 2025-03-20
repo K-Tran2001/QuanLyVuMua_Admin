@@ -24,8 +24,9 @@ import LottieComponent from "../../components/lotties/lottie";
 import { toast } from "react-toastify";
 import VariantModal from "../../components/modal/VariantModal";
 
-const CategoryPage = () => {
-  const REQUEST_INIT = { name: "", type: "plant" };
+const PesticideCategoryPage = () => {
+  const type = "pesticide-categories";
+  const REQUEST_INIT = { name: "", type: type };
   const [isBusy, setIsBusy] = React.useState(false);
   const [visibleModal, setVisibleModal] = React.useState(false);
   const [isAddNew, setIsAddNew] = React.useState(false);
@@ -35,7 +36,7 @@ const CategoryPage = () => {
   const [keySearch, setKeySearch] = React.useState("");
   const [request, setRequest] = React.useState(REQUEST_INIT);
   const [filterPage, setFilterPage] = React.useState({
-    typeReq: "plant",
+    type: type,
     keySearch: "",
     sort: {},
     page: 1,
@@ -62,9 +63,8 @@ const CategoryPage = () => {
         setIsBusy(false);
       });
   };
-  console.log("request", request);
 
-  const onVatidate = () => {
+  const onValidate = () => {
     if (request?.name?.length === 0) {
       setErrors([...errors, "name"]);
       return false;
@@ -76,7 +76,7 @@ const CategoryPage = () => {
     if (isBusy) {
       return;
     }
-    if (!onVatidate()) {
+    if (!onValidate()) {
       return;
     }
 
@@ -101,7 +101,7 @@ const CategoryPage = () => {
     if (isBusy) {
       return;
     }
-    if (!onVatidate()) {
+    if (!onValidate()) {
       return;
     }
     setIsBusy(true);
@@ -159,7 +159,7 @@ const CategoryPage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Categories" preLink="" />
+      <PageBreadcrumb pageTitle="Pesticide Categories" preLink="" />
       <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
         <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -350,4 +350,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default PesticideCategoryPage;

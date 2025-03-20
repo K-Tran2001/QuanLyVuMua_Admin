@@ -7,27 +7,12 @@ import { MainContext } from "../../context/MainContext";
 import { GetAllCategoryFK } from "../../api/categoryService";
 
 const Filter = ({ initValue, onChange }) => {
-  const type = "pesticide-categories";
   const context = React.useContext(MainContext);
   const { drawer, setDrawer } = context;
 
   const [tpmFilterPage, setTmpFilterPage] = React.useState({});
-  const [categories, setCategories] = React.useState([]);
-  const LoadDataFK = async () => {
-    GetAllCategoryFK({ type })
-      .then((res) => {
-        if (res.success) {
-          setCategories([{ name: "Tất cả", _id: null }, ...res.data]);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {});
-  };
 
   useEffect(() => {
-    LoadDataFK();
     if (initValue) {
       setTmpFilterPage(initValue);
     }
@@ -88,29 +73,6 @@ const Filter = ({ initValue, onChange }) => {
                     ...tpmFilterPage.sortOptions,
                     sortOrder: e,
                   },
-                });
-              }}
-              className="dark:bg-dark-900"
-            />
-          </div>
-
-          <div>
-            <Label>{"Category"}</Label>
-            <Select
-              defaultValue={tpmFilterPage?.categoryId}
-              options={
-                categories?.length > 0
-                  ? categories.map((item) => ({
-                      label: item.name,
-                      value: item._id,
-                    }))
-                  : []
-              }
-              placeholder="Select an option"
-              onChange={(e) => {
-                setTmpFilterPage({
-                  ...tpmFilterPage,
-                  categoryId: e,
                 });
               }}
               className="dark:bg-dark-900"

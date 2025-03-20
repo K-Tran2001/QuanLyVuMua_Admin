@@ -9,19 +9,20 @@ import MyCkEditor from "../../components/my-ckeditor/MyCkEditor";
 import Select from "../../components/form/Select";
 import Tooltip from "../../components/tooltip/Tooltip";
 import {
-  SavePlant_UploadMutli,
-  SeachPlant,
-  UpdatePlant_UploadMutli,
-} from "../../api/plantService";
+  SavePartner_UploadMutli,
+  SeachPartner,
+  UpdatePartner_UploadMutli,
+} from "../../api/partnerService";
 import DropzoneComponentV2 from "../../components/form/form-elements/DropZoneV2";
 import { CloseIcon } from "../../icons";
 import { GetAllCategoryFK } from "../../api/categoryService";
 
 import { toast } from "react-toastify";
+import InputNumber from "../../components/form/input/InputNumberField";
+import TextArea from "../../components/form/input/TextArea";
 
 const TYPE_OF_DATA_IMG_RETURN = "file"; //file or base64String
-const AddPlantPage = () => {
-  const type = "plant-categories";
+const AddPartnerPage = () => {
   const { id } = useParams();
   const navigation = useNavigate();
 
@@ -55,11 +56,11 @@ const AddPlantPage = () => {
       };
     }
 
-    SavePlant_UploadMutli(request_v2)
+    SavePartner_UploadMutli(request_v2)
       .then((response) => {
         if (response.success) {
           toast.success("Create Success!");
-          navigation("/plants");
+          navigation("/partners");
         }
       })
       .catch((err) => console.log(err))
@@ -106,10 +107,10 @@ const AddPlantPage = () => {
       };
     }
 
-    UpdatePlant_UploadMutli(id, request_v2)
+    UpdatePartner_UploadMutli(id, request_v2)
       .then((response) => {
         if (response.success) {
-          navigation("/plants");
+          navigation("/partners");
           toast.success("Update Success!");
         }
       })
@@ -132,17 +133,17 @@ const AddPlantPage = () => {
   };
 
   const LoadData = async () => {
-    SeachPlant(id).then((response) => {
+    SeachPartner(id).then((response) => {
       if (response.success) {
-        setRequest(response.data[0]);
-        setImages(response.data[0].images);
+        setRequest(response.data);
+        setImages(response.data.images);
       }
     });
   };
   console.log(errors);
 
   const LoadDataFK = async () => {
-    GetAllCategoryFK({ type })
+    GetAllCategoryFK()
       .then((res) => {
         if (res.success) {
           setCategories(res.data);
@@ -195,109 +196,100 @@ const AddPlantPage = () => {
       document.removeEventListener("keydown", handleSaveShortcut);
     };
   }, []);
+  console.log("req", request);
 
   return (
     <div>
       <PageBreadcrumb
         pageTitle={isEdit ? "Edit" : "Add new"}
-        prePageTitle="Plants"
-        preLink="plants"
+        prePageTitle="Partners"
+        preLink="partners"
       />
       <div className=" min-h-[calc(100vh-180px)] custom-scrollbar overflow-hidden  rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-6">
-          <div className="space-y-6">
-            <div>
-              <Label children={"Name"} />
-              <Input
-                {...{
-                  error: errors.includes("name"),
-                  hint: errors.includes("name") ? "Required field" : "",
-                }}
-                value={request?.name}
-                onChange={(e) =>
-                  setRequest({ ...request, name: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <Label>{"Category"}</Label>
-              <Select
-                defaultValue={request?.categoryId}
-                options={
-                  categories?.length > 0
-                    ? categories.map((item) => ({
-                        label: item.name,
-                        value: item._id,
-                      }))
-                    : []
-                }
-                placeholder="Select an option"
-                onChange={(e) => {
-                  setRequest({
-                    ...request,
-                    categoryId: e,
-                  });
-                }}
-                className="dark:bg-dark-900"
-              />
-            </div>
-
-            <div>
-              <Label children={"Images"} />
-              <DropzoneComponentV2
-                multiple={true}
-                typeDataReturn={TYPE_OF_DATA_IMG_RETURN}
-                imagesInit={images}
-                onUpload={(dataReturn) => {
-                  // setRequest({
-                  //   ...request,
-                  //   files: [dataReturn],
-                  // });
-                  setImages(dataReturn);
-                }}
-              />
-
-              {images?.length > 0 &&
-                images.map((itemImg) => (
-                  <div key={Math.random()}>
-                    {(itemImg.imageBase64String != "" ||
-                      itemImg.imageAbsolutePath != "") && (
-                      <div className="flex items-center space-x-4 border border-gray-300 dark:border-gray-700 rounded-lg relative my-4 p-2">
-                        <div className=" w-[100px] h-[100px]  ">
-                          <img
-                            src={
-                              itemImg.isNewUpload
-                                ? itemImg.imageBase64String
-                                : itemImg.imageAbsolutePath
-                            }
-                            className="w-full h-full"
-                            style={{ objectFit: "contain" }}
-                          />
-                          <div
-                            className="hover:bg-red-500 absolute top-0 right-0  translate-x-2 -translate-y-2 p-2 bg-gray-800 text-white rounded-lg dark:bg-white dark:text-black"
-                            onClick={() => {
-                              handleDeleteImage(itemImg);
-                              console.log("delete", itemImg);
-                            }}
-                          >
-                            <CloseIcon className="size-5 " />
-                          </div>
-                        </div>
-                        <h3 className="text-lg  flex-1 truncate ">
-                          {itemImg.fileName}
-                        </h3>
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </div>
-          </div>
-          <div className="col-span-2">
-            <Label children={"Description"} />
-            <MyCkEditor
-              initData={""}
-              onChange={(data) => setRequest({ ...request, description: data })}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="col-span-1 md:col-span-3">
+            <Label children={"Name"} />
+            <Input
+              value={request?.name}
+              onChange={(e) => setRequest({ ...request, name: e.target.value })}
             />
+          </div>
+          <div>
+            <Label children={"Phone"} />
+            <Input
+              className="text-end"
+              value={request?.phone}
+              onChange={(e) => {
+                setRequest({ ...request, phone: e.target.value });
+              }}
+            />
+          </div>
+          <div className="col-span-1 md:col-span-4">
+            <Label children={"Address"} />
+            <TextArea
+              value={request?.address}
+              onChange={(e) => {
+                setRequest({ ...request, address: e });
+              }}
+            />
+          </div>
+
+          <div className="col-span-1  md:col-span-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 order-1">
+                <Label children={"Images"} />
+                <DropzoneComponentV2
+                  multiple={true}
+                  typeDataReturn={TYPE_OF_DATA_IMG_RETURN}
+                  imagesInit={images}
+                  onUpload={(dataReturn) => {
+                    setImages(dataReturn);
+                  }}
+                />
+                {images?.length > 0 &&
+                  images.map((itemImg) => (
+                    <div key={Math.random()}>
+                      {(itemImg.imageBase64String != "" ||
+                        itemImg.imageAbsolutePath != "") && (
+                        <div className="flex items-center space-x-4 border border-gray-300 dark:border-gray-700 rounded-lg relative my-4 p-2">
+                          <div className=" w-[100px] h-[100px]  ">
+                            <img
+                              src={
+                                itemImg.isNewUpload
+                                  ? itemImg.imageBase64String
+                                  : itemImg.imageAbsolutePath
+                              }
+                              className="w-full h-full"
+                              style={{ objectFit: "contain" }}
+                            />
+                            <div
+                              className="hover:bg-red-500 absolute top-0 right-0  translate-x-2 -translate-y-2 p-2 bg-gray-800 text-white rounded-lg dark:bg-white dark:text-black"
+                              onClick={() => {
+                                handleDeleteImage(itemImg);
+                                console.log("delete", itemImg);
+                              }}
+                            >
+                              <CloseIcon className="size-5 " />
+                            </div>
+                          </div>
+                          <h3 className="text-lg  flex-1 truncate ">
+                            {itemImg.fileName}
+                          </h3>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+              <div className="col-span-1 order-0">
+                <Label children={"Description"} />
+                <MyCkEditor
+                  initData={request?.description}
+                  onChange={(data) =>
+                    setRequest({ ...request, description: data })
+                  }
+                />
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex justify-end py-2 ">
@@ -315,4 +307,4 @@ const AddPlantPage = () => {
   );
 };
 
-export default AddPlantPage;
+export default AddPartnerPage;

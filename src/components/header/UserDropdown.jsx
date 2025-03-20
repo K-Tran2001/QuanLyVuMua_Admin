@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { MainContext } from "../../context/MainContext";
 
 export default function UserDropdown() {
+  const navigate = useNavigate();
+  const context = useContext(MainContext);
+  const { user, setUser } = context;
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
@@ -13,6 +17,12 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  const handleLogout = () => {
+    localStorage.removeItem("^token");
+    setUser(null);
+    navigate("/signin", { replace: true });
+  };
   return (
     <div className="relative">
       <button
@@ -23,7 +33,9 @@ export default function UserDropdown() {
           <img src="/images/user/user-05.jpg" alt="User" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Khoa Tran</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {user?.username}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -51,10 +63,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Khoa Tran Van
+            {user?.fullName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            khoatranvan@gmail.com
+            _
           </span>
         </div>
 
@@ -136,7 +148,9 @@ export default function UserDropdown() {
           </li>
         </ul>
         <Link
-          to="/signin"
+          onClick={() => {
+            handleLogout();
+          }}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg

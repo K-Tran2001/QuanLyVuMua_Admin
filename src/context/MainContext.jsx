@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext } from "react";
 import { Translate } from "../api/translate";
 
 export const MainContext = createContext(undefined);
@@ -369,6 +369,9 @@ export const MainProvider = ({ children }) => {
     onConfirm: () => {},
   });
 
+  //Auth
+  const [user, setUser] = React.useState(null);
+
   return (
     <MainContext.Provider
       value={{
@@ -384,6 +387,8 @@ export const MainProvider = ({ children }) => {
         setDataTranslate,
         drawer,
         setDrawer,
+        user,
+        setUser,
       }}
     >
       {children}

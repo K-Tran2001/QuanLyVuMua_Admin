@@ -21,7 +21,7 @@ import { useNavigate } from "react-router";
 import { GetAllForm, SeachForm } from "../../api/formService";
 import EmptyData from "../../components/no-data/EmptyData";
 
-const GardentPage = () => {
+const PartnerPage = () => {
   const navigate = useNavigate();
   const tableData = [
     {
@@ -120,7 +120,7 @@ const GardentPage = () => {
   }, [filterPage]);
   return (
     <div>
-      <PageBreadcrumb pageTitle="Gardents" preLink="" />
+      <PageBreadcrumb pageTitle="Partners" preLink="" />
       <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
         <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -161,7 +161,7 @@ const GardentPage = () => {
             <Button
               size="sm"
               children={"Add new"}
-              onClick={() => navigate("/gardents/add")}
+              onClick={() => navigate("/partners/add")}
             />
             {/* <Button
               variant="outline"
@@ -458,4 +458,4 @@ const GardentPage = () => {
   );
 };
 
-export default GardentPage;
+export default PartnerPage;

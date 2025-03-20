@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   Table,
@@ -13,15 +13,15 @@ import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import Button from "../../components/ui/button/Button";
 import Modal from "../../components/modal/Modal";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import EmptyData from "../../components/no-data/EmptyData";
 import {
-  DeletePesticide,
-  ExportAllPesticide,
-  ExportPesticide,
-  GetAllPesticide,
-  ImportPesticide,
-} from "../../api/pesticideService";
+  DeleteBill,
+  ExportAllBill,
+  ExportBill,
+  GetAllBill,
+  ImportBill,
+} from "../../api/billService";
 import LottieComponent from "../../components/lotties/lottie";
 import { debounce } from "lodash";
 import { MainContext } from "../../context/MainContext";
@@ -32,12 +32,25 @@ import {
   getItemLocalStore,
   setItemLocalStore,
 } from "../../hooks/useLocalStore";
+import Label from "../../components/form/Label";
+import FileInput from "../../components/form/input/FileInput";
 import UploadExcelFile from "../../components/upload-exce-file/UploadExcelFile";
+import Bage from "./Bage";
 
-const PesticidePage = () => {
+const PurchaseBillPage = () => {
   const navigate = useNavigate();
   const context = React.useContext(MainContext);
   const { drawer, setDrawer } = context;
+  const type = "purchase-invoices";
+  const FILTERPAGE_INIT = {
+    keySearch: "",
+    gardenId: null,
+    sort: {},
+    page: 1,
+    pageSize: 10,
+    sortOptions: { sortField: "createdAt", sortOrder: "desc" },
+    type: type,
+  };
 
   const [isBusy, setIsBusy] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -47,16 +60,9 @@ const PesticidePage = () => {
   const [data, setData] = React.useState([]);
   const [totalRecords, setTotalRecords] = React.useState(0);
   const [keySearch, setKeySearch] = React.useState("");
-  const FILTERPAGE_INIT = {
-    keySearch: "",
-    categoryId: null,
-    sort: {},
-    page: 1,
-    pageSize: 10,
-    sortOptions: { sortField: "createdAt", sortOrder: "desc" },
-  };
+
   const [filterPage, setFilterPage] = React.useState(() => {
-    const dataFilter = getItemLocalStore("pesticidePageFilter");
+    const dataFilter = getItemLocalStore("purchasesInvoicesPageFilter");
     return dataFilter ? dataFilter : FILTERPAGE_INIT;
   });
 
@@ -74,7 +80,7 @@ const PesticidePage = () => {
       return;
     }
     setIsBusy(true);
-    setItemLocalStore("pesticidePageFilter", filterPage);
+    setItemLocalStore("purchasesInvoicesPageFilter", filterPage);
     var filterPage_v2 = { ...filterPage };
     if (filterPage_v2.sortOptions !== null) {
       const sortDirection =
@@ -84,7 +90,7 @@ const PesticidePage = () => {
       };
     }
 
-    GetAllPesticide(filterPage_v2)
+    GetAllBill(filterPage_v2)
       .then((res) => {
         console.log("res", res);
 
@@ -106,7 +112,7 @@ const PesticidePage = () => {
       return;
     }
     setIsBusy(true);
-    DeletePesticide(id)
+    DeleteBill(id)
       .then((res) => {
         console.log("res", res);
 
@@ -155,9 +161,10 @@ const PesticidePage = () => {
     }
     var formData = jsonToFormData(requestImport);
 
-    ImportPesticide(formData)
+    ImportBill(formData)
       .then((response) => {
         if (response.success) {
+          setVisibleModalImport(false);
           if (response.data.failed === 0) {
             toast.success("Import successful !");
           } else {
@@ -175,7 +182,7 @@ const PesticidePage = () => {
       .catch((err) => {})
       .finally(() => {});
   };
-  console.log(requestImport);
+  const DowloadTemplate = () => {};
   const ExportData = async () => {
     var filterPage_v2 = { ...filterPage };
 
@@ -184,25 +191,27 @@ const PesticidePage = () => {
     filterPage_v2.sortOptions = {
       [filterPage_v2.sortOptions.sortField]: sortDirection,
     };
-    ExportPesticide(filterPage_v2)
+    ExportBill(filterPage_v2)
       .then((response) => {
         if (response.success) {
           toast.success("Export Success!");
           window.location.href = response.data;
+        } else {
+          toast.success(response.message);
         }
       })
-      .catch(() => {})
+      .catch((err) => {})
       .finally(() => {});
   };
   const ExportDataNoFilter = async () => {
-    ExportAllPesticide()
+    ExportAllBill()
       .then((response) => {
         if (response.success) {
           toast.success("Export Success!");
           window.location.href = response.data;
         }
       })
-      .catch(() => {})
+      .catch((err) => {})
       .finally(() => {});
     //res.data = url
     //window.location.href = `http://localhost:5000${data.url}`;
@@ -222,18 +231,17 @@ const PesticidePage = () => {
   React.useEffect(() => {
     LoadData();
   }, [filterPage]);
-  console.log(filterPage);
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Pesticides" preLink="" />
-
+      <PageBreadcrumb pageTitle="Purchase Invoices" preLink="" />
       <Filter
         initValue={filterPage}
         onChange={(e) => {
           setFilterPage(e);
         }}
       />
+
       <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-y-hidden custom-scrolbar  rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
         <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -275,7 +283,7 @@ const PesticidePage = () => {
             <Button
               size="sm"
               children={"Add new"}
-              onClick={() => navigate("/pesticides/add")}
+              onClick={() => navigate(`/${type}/add`)}
             />
             <Button
               variant="outline"
@@ -306,7 +314,7 @@ const PesticidePage = () => {
                 onClose={closeDropdown}
                 className="w-40 p-2"
               >
-                <DropdownItem
+                {/* <DropdownItem
                   onItemClick={() => {
                     closeDropdown();
                     setVisibleModalImport(true);
@@ -314,7 +322,7 @@ const PesticidePage = () => {
                   className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                 >
                   Import Data
-                </DropdownItem>
+                </DropdownItem> */}
                 <DropdownItem
                   onItemClick={() => {
                     closeDropdown();
@@ -352,12 +360,30 @@ const PesticidePage = () => {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Category
+                  Status
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Garden
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
+                >
+                  Number of detail
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
+                >
+                  Total actual
                 </TableCell>
 
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 w-[100px] text-center"
+                  className=" py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400 w-[100px] text-center"
                 >
                   Actions
                 </TableCell>
@@ -380,7 +406,7 @@ const PesticidePage = () => {
                       <TableRow
                         onClick={() => setActiveRow(item)}
                         onDoubleClick={() => {
-                          navigate(`edit/${item._id}`);
+                          navigate(`/${type}}/edit/${item._id}`);
                         }}
                         key={item._id}
                         className="hover:shadow-sm hover:bg-gray-100"
@@ -407,8 +433,28 @@ const PesticidePage = () => {
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-2">
-                          <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item?.categoryName}
+                          <p className="text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.isConfirm ? (
+                              <Bage status={true} title={"Đã duyệt"} />
+                            ) : (
+                              <Bage status={false} title={"Chưa duyệt"} />
+                            )}
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-3 px-2">
+                          <p className="text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.gardenName}
+                          </p>
+                        </TableCell>
+
+                        <TableCell className="py-3 px-2">
+                          <p className="text-end font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.billDetail?.length || 0}
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-3 px-2">
+                          <p className="text-end font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.totalActual}
                           </p>
                         </TableCell>
 
@@ -419,7 +465,7 @@ const PesticidePage = () => {
                               size="sm"
                               children={"Edit"}
                               onClick={() => {
-                                navigate(`edit/${item._id}`);
+                                navigate(`/${type}/edit/${item._id}`);
                               }}
                             />
                             <Button
@@ -505,6 +551,7 @@ const PesticidePage = () => {
 
         <UploadExcelFile
           ImportData={ImportData}
+          DowloadTemplate={DowloadTemplate}
           initData={requestImport}
           onChange={(e) => setRequestImport(e)}
           isOpen={visibleModalImport}
@@ -515,4 +562,4 @@ const PesticidePage = () => {
   );
 };
 
-export default PesticidePage;
+export default PurchaseBillPage;

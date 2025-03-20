@@ -16,12 +16,12 @@ import Modal from "../../components/modal/Modal";
 import { useNavigate } from "react-router";
 import EmptyData from "../../components/no-data/EmptyData";
 import {
-  DeletePesticide,
-  ExportAllPesticide,
-  ExportPesticide,
-  GetAllPesticide,
-  ImportPesticide,
-} from "../../api/pesticideService";
+  DeleteGarden,
+  ExportAllGarden,
+  ExportGarden,
+  GetAllGarden,
+  ImportGarden,
+} from "../../api/gardenService";
 import LottieComponent from "../../components/lotties/lottie";
 import { debounce } from "lodash";
 import { MainContext } from "../../context/MainContext";
@@ -32,9 +32,11 @@ import {
   getItemLocalStore,
   setItemLocalStore,
 } from "../../hooks/useLocalStore";
+import Label from "../../components/form/Label";
+import FileInput from "../../components/form/input/FileInput";
 import UploadExcelFile from "../../components/upload-exce-file/UploadExcelFile";
 
-const PesticidePage = () => {
+const GardenPage = () => {
   const navigate = useNavigate();
   const context = React.useContext(MainContext);
   const { drawer, setDrawer } = context;
@@ -56,7 +58,7 @@ const PesticidePage = () => {
     sortOptions: { sortField: "createdAt", sortOrder: "desc" },
   };
   const [filterPage, setFilterPage] = React.useState(() => {
-    const dataFilter = getItemLocalStore("pesticidePageFilter");
+    const dataFilter = getItemLocalStore("gardenPageFilter");
     return dataFilter ? dataFilter : FILTERPAGE_INIT;
   });
 
@@ -74,7 +76,7 @@ const PesticidePage = () => {
       return;
     }
     setIsBusy(true);
-    setItemLocalStore("pesticidePageFilter", filterPage);
+    setItemLocalStore("gardenPageFilter", filterPage);
     var filterPage_v2 = { ...filterPage };
     if (filterPage_v2.sortOptions !== null) {
       const sortDirection =
@@ -84,7 +86,7 @@ const PesticidePage = () => {
       };
     }
 
-    GetAllPesticide(filterPage_v2)
+    GetAllGarden(filterPage_v2)
       .then((res) => {
         console.log("res", res);
 
@@ -106,7 +108,7 @@ const PesticidePage = () => {
       return;
     }
     setIsBusy(true);
-    DeletePesticide(id)
+    DeleteGarden(id)
       .then((res) => {
         console.log("res", res);
 
@@ -155,9 +157,10 @@ const PesticidePage = () => {
     }
     var formData = jsonToFormData(requestImport);
 
-    ImportPesticide(formData)
+    ImportGarden(formData)
       .then((response) => {
         if (response.success) {
+          setVisibleModalImport(false);
           if (response.data.failed === 0) {
             toast.success("Import successful !");
           } else {
@@ -175,7 +178,7 @@ const PesticidePage = () => {
       .catch((err) => {})
       .finally(() => {});
   };
-  console.log(requestImport);
+  const DowloadTemplate = () => {};
   const ExportData = async () => {
     var filterPage_v2 = { ...filterPage };
 
@@ -184,25 +187,25 @@ const PesticidePage = () => {
     filterPage_v2.sortOptions = {
       [filterPage_v2.sortOptions.sortField]: sortDirection,
     };
-    ExportPesticide(filterPage_v2)
+    ExportGarden(filterPage_v2)
       .then((response) => {
         if (response.success) {
           toast.success("Export Success!");
           window.location.href = response.data;
         }
       })
-      .catch(() => {})
+      .catch((err) => {})
       .finally(() => {});
   };
   const ExportDataNoFilter = async () => {
-    ExportAllPesticide()
+    ExportAllGarden()
       .then((response) => {
         if (response.success) {
           toast.success("Export Success!");
           window.location.href = response.data;
         }
       })
-      .catch(() => {})
+      .catch((err) => {})
       .finally(() => {});
     //res.data = url
     //window.location.href = `http://localhost:5000${data.url}`;
@@ -226,7 +229,7 @@ const PesticidePage = () => {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Pesticides" preLink="" />
+      <PageBreadcrumb pageTitle="Gardens" preLink="" />
 
       <Filter
         initValue={filterPage}
@@ -275,7 +278,7 @@ const PesticidePage = () => {
             <Button
               size="sm"
               children={"Add new"}
-              onClick={() => navigate("/pesticides/add")}
+              onClick={() => navigate("/gardens/add")}
             />
             <Button
               variant="outline"
@@ -350,14 +353,20 @@ const PesticidePage = () => {
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-2 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
                 >
-                  Category
+                  Num Of Plants
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className=" px-2 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
+                >
+                  Land Area
                 </TableCell>
 
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 w-[100px] text-center"
+                  className="px-2 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400 w-[100px] text-center"
                 >
                   Actions
                 </TableCell>
@@ -407,8 +416,13 @@ const PesticidePage = () => {
                           </div>
                         </TableCell>
                         <TableCell className="py-3 px-2">
-                          <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item?.categoryName}
+                          <p className="text-right font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.numberOfPlants}
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-3 px-2">
+                          <p className="text-right font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item.landArea}
                           </p>
                         </TableCell>
 
@@ -505,6 +519,7 @@ const PesticidePage = () => {
 
         <UploadExcelFile
           ImportData={ImportData}
+          DowloadTemplate={DowloadTemplate}
           initData={requestImport}
           onChange={(e) => setRequestImport(e)}
           isOpen={visibleModalImport}
@@ -515,4 +530,4 @@ const PesticidePage = () => {
   );
 };
 
-export default PesticidePage;
+export default GardenPage;

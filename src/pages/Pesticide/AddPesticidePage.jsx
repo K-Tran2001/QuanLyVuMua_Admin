@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 
 const TYPE_OF_DATA_IMG_RETURN = "file"; //file or base64String
 const AddPesticidePage = () => {
+  const type = "pesticide-categories";
   const { id } = useParams();
   const navigation = useNavigate();
 
@@ -36,7 +37,7 @@ const AddPesticidePage = () => {
     if (isBusy) {
       return;
     }
-    if (!onVatidate()) {
+    if (!onValidate()) {
       return;
     }
     setIsBusy(true);
@@ -70,7 +71,7 @@ const AddPesticidePage = () => {
     if (isBusy) {
       return;
     }
-    if (!onVatidate()) {
+    if (!onValidate()) {
       return;
     }
     setIsBusy(true);
@@ -141,7 +142,7 @@ const AddPesticidePage = () => {
   console.log(errors);
 
   const LoadDataFK = async () => {
-    GetAllCategoryFK()
+    GetAllCategoryFK({ type })
       .then((res) => {
         if (res.success) {
           setCategories(res.data);
@@ -152,7 +153,7 @@ const AddPesticidePage = () => {
       })
       .finally(() => {});
   };
-  const onVatidate = () => {
+  const onValidate = () => {
     if (request.name?.length === 0) {
       setErrors([...errors, "name"]);
       return false;

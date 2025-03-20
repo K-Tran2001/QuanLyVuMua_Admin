@@ -32,8 +32,6 @@ import {
   getItemLocalStore,
   setItemLocalStore,
 } from "../../hooks/useLocalStore";
-import Label from "../../components/form/Label";
-import FileInput from "../../components/form/input/FileInput";
 import UploadExcelFile from "../../components/upload-exce-file/UploadExcelFile";
 
 const PlantPage = () => {
@@ -145,6 +143,15 @@ const PlantPage = () => {
   };
   const ImportData = async () => {
     if (requestImport.files == null) {
+      return;
+    }
+
+    if (
+      requestImport.fromRow == requestImport.toRow ||
+      requestImport.fromRow > requestImport.toRow ||
+      requestImport.toRow > requestImport.maxRow
+    ) {
+      toast("Recheck from row and to row!");
       return;
     }
     var formData = jsonToFormData(requestImport);

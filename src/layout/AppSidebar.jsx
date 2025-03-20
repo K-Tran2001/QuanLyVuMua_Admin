@@ -14,7 +14,7 @@ import { useSidebar } from "../context/SidebarContext";
 const navItems = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
+    name: "Home",
     subItems: [
       { name: "Ecommerce", path: "/", pro: false },
       {
@@ -31,35 +31,38 @@ const navItems = [
   },
   {
     icon: <CalenderIcon />,
-    name: "Loai cay",
-    path: "/plant-categories",
-  },
-  {
-    icon: <CalenderIcon />,
     name: "Thuoc BVTV",
     path: "/pesticides",
   },
+  {
+    icon: <CalenderIcon />,
+    name: "Vuon",
+    path: "/gardens",
+  },
 
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Loai thuoc",
-  //   path: "/pesticide-categories",
-  // },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Vuon",
-  //   path: "/gardents",
-  // },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Doi tac",
-  //   path: "/partners",
-  // },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Mua - ban",
-  //   path: "/bills",
-  // },
+  {
+    icon: <CalenderIcon />,
+    name: "Doi tac",
+    path: "/partners",
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Phan loai",
+    //path: "/plant-categories",
+    subItems: [
+      { name: "Loai cay", path: "/plant-categories", pro: false },
+      { name: "Loai thuoc BVTV", path: "/pesticide-categories", pro: false },
+    ],
+  },
+
+  {
+    icon: <CalenderIcon />,
+    name: "Mua - ban",
+    subItems: [
+      { name: "Hóa đơn bán", path: "/sales-invoices", pro: false },
+      { name: "Hóa đơn mua", path: "/purchase-invoices", pro: false },
+    ],
+  },
   {
     icon: <CalenderIcon />,
     name: "Lịch",

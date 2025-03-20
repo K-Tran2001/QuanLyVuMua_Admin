@@ -4,17 +4,16 @@ import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
 import Select from "../../components/form/Select";
 import { MainContext } from "../../context/MainContext";
-import { GetAllCategoryFK } from "../../api/categoryService";
+import { GetAllGardenFK } from "../../api/gardenService";
 
 const Filter = ({ initValue, onChange }) => {
-  const type = "pesticide-categories";
   const context = React.useContext(MainContext);
   const { drawer, setDrawer } = context;
 
   const [tpmFilterPage, setTmpFilterPage] = React.useState({});
   const [categories, setCategories] = React.useState([]);
   const LoadDataFK = async () => {
-    GetAllCategoryFK({ type })
+    GetAllGardenFK()
       .then((res) => {
         if (res.success) {
           setCategories([{ name: "Tất cả", _id: null }, ...res.data]);
@@ -95,9 +94,9 @@ const Filter = ({ initValue, onChange }) => {
           </div>
 
           <div>
-            <Label>{"Category"}</Label>
+            <Label>{"Garden"}</Label>
             <Select
-              defaultValue={tpmFilterPage?.categoryId}
+              defaultValue={tpmFilterPage?.gardenId}
               options={
                 categories?.length > 0
                   ? categories.map((item) => ({
@@ -110,7 +109,7 @@ const Filter = ({ initValue, onChange }) => {
               onChange={(e) => {
                 setTmpFilterPage({
                   ...tpmFilterPage,
-                  categoryId: e,
+                  gardenId: e,
                 });
               }}
               className="dark:bg-dark-900"
@@ -124,7 +123,7 @@ const Filter = ({ initValue, onChange }) => {
             onClick={() => {
               setTmpFilterPage({
                 ...tpmFilterPage,
-                categoryId: null,
+                gardenId: null,
                 sortOptions: null,
               });
 

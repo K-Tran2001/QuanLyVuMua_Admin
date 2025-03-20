@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-const Select = ({
+const Select_v2 = ({
   options,
   placeholder = "Select an option",
   onChange,
@@ -11,14 +11,15 @@ const Select = ({
   hint,
 }) => {
   // Manage the selected value
-  const [selectedValue, setSelectedValue] = useState();
+  const [selectedValue, setSelectedValue] = React.useState();
 
   const handleChange = (e) => {
     console.log(e.target.value);
 
     const value = e.target.value;
     setSelectedValue(value);
-    onChange(value); // Trigger parent handler
+    const selectedObj = options.find((opt) => opt.value === value);
+    onChange(selectedObj); // Trigger parent handler
   };
   const classNameErr = `  border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
   React.useEffect(() => {
@@ -75,4 +76,4 @@ const Select = ({
   );
 };
 
-export default Select;
+export default Select_v2;

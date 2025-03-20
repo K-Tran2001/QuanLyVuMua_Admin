@@ -12,7 +12,7 @@ import Calendar from "../Calendar";
 const CalendarPage = () => {
   const [isBusy, setIsBusy] = React.useState(false);
 
-  const [data, setData] = React.useState([{ _id: 123, name: "item1" }]);
+  const [data, setData] = React.useState([]);
 
   const [request, setRequest] = React.useState(null);
   const [filterPage, setFilterPage] = React.useState({

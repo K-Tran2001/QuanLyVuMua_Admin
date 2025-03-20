@@ -7,6 +7,11 @@ export async function GetAllPlant(request) {
     return await Proxy("post","/plant/get-all", request);
 }
 
+export async function GetAllPlantFK(request) {
+    
+    return await Proxy("post","/plant/get-all-fk", request);
+}
+
 export async function SavePlant(request) {
     
     return await Proxy("post","/plant/create", request);

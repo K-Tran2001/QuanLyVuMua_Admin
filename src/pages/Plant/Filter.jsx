@@ -7,13 +7,14 @@ import { MainContext } from "../../context/MainContext";
 import { GetAllCategoryFK } from "../../api/categoryService";
 
 const Filter = ({ initValue, onChange }) => {
+  const type = "plant-categories";
   const context = React.useContext(MainContext);
   const { drawer, setDrawer } = context;
 
   const [tpmFilterPage, setTmpFilterPage] = React.useState({});
   const [categories, setCategories] = React.useState([]);
   const LoadDataFK = async () => {
-    GetAllCategoryFK()
+    GetAllCategoryFK({ type })
       .then((res) => {
         if (res.success) {
           setCategories([{ name: "Tất cả", _id: null }, ...res.data]);

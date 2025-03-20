@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 
@@ -7,8 +7,12 @@ import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import { Login } from "../../api/authService";
+import { getDataFromToken, setItemLocalStore } from "../../hooks/useLocalStore";
+import { MainContext } from "../../context/MainContext";
 
 export default function SignInForm() {
+  const context = React.useContext(MainContext);
+  const { setUser } = context;
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -20,6 +24,9 @@ export default function SignInForm() {
     const response = await Login(data);
     console.log(response);
     if (response.success) {
+      const token = response.data.accessToken;
+      setItemLocalStore("^token", token);
+      setUser(getDataFromToken(token));
       navigate("/");
     }
   };

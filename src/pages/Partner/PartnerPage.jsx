@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import {
   Table,
@@ -7,80 +7,59 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import Badge from "../../components/ui/badge/Badge";
-import Pagination from "../../components/ui/pagination";
+
 import { BoxIcon, MoreDotIcon } from "../../icons";
 import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import Button from "../../components/ui/button/Button";
 import Modal from "../../components/modal/Modal";
-import Label from "../../components/form/Label";
-import TextArea from "../../components/form/input/TextArea";
-import Input from "../../components/form/input/InputField";
 import { useNavigate } from "react-router";
-import { GetAllForm, SeachForm } from "../../api/formService";
 import EmptyData from "../../components/no-data/EmptyData";
+import {
+  DeletePartner,
+  ExportAllPartner,
+  ExportPartner,
+  GetAllPartner,
+  ImportPartner,
+} from "../../api/partnerService";
+import LottieComponent from "../../components/lotties/lottie";
+import { debounce } from "lodash";
+import { MainContext } from "../../context/MainContext";
+import Filter from "./Filter";
+import MyPagination from "../../components/ui/pagination/MyPagination";
+import { toast } from "react-toastify";
+import {
+  getItemLocalStore,
+  setItemLocalStore,
+} from "../../hooks/useLocalStore";
+import Label from "../../components/form/Label";
+import FileInput from "../../components/form/input/FileInput";
+import UploadExcelFile from "../../components/upload-exce-file/UploadExcelFile";
 
 const PartnerPage = () => {
   const navigate = useNavigate();
-  const tableData = [
-    {
-      id: 1,
-      name: "MacBook Pro 13”",
-      variants: "2 Variants",
-      category: "Laptop",
-      price: "$2399.00",
-      status: "Publish",
-      image: "/images/product/product-01.jpg", // Replace with actual image URL
-    },
-    {
-      id: 2,
-      name: "Apple Watch Ultra",
-      variants: "1 Variant",
-      category: "Watch",
-      price: "$879.00",
-      status: "Save",
-      image: "/images/product/product-02.jpg", // Replace with actual image URL
-    },
-    {
-      id: 3,
-      name: "iPhone 15 Pro Max",
-      variants: "2 Variants",
-      category: "SmartPhone",
-      price: "$1869.00",
-      status: "Publish",
-      image: "/images/product/product-03.jpg", // Replace with actual image URL
-    },
-    {
-      id: 4,
-      name: "iPad Pro 3rd Gen",
-      variants: "2 Variants",
-      category: "Electronics",
-      price: "$1699.00",
-      status: "Conflic",
-      image: "/images/product/product-04.jpg", // Replace with actual image URL
-    },
-    {
-      id: 5,
-      name: "AirPods Pro 2nd Gen",
-      variants: "1 Variant",
-      category: "Accessories",
-      price: "$240.00",
-      status: "Publish",
-      image: "/images/product/product-05.jpg", // Replace with actual image URL
-    },
-  ];
+  const context = React.useContext(MainContext);
+  const { drawer, setDrawer } = context;
+
   const [isBusy, setIsBusy] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeRowId, setActiveRowId] = React.useState(null);
   const [activeRow, setActiveRow] = React.useState(null);
   const [visibleModal, setVisibleModal] = React.useState(false);
   const [data, setData] = React.useState([]);
-  const [filterPage, setFilterPage] = React.useState({
+  const [totalRecords, setTotalRecords] = React.useState(0);
+  const [keySearch, setKeySearch] = React.useState("");
+  const FILTERPAGE_INIT = {
     keySearch: "",
+    categoryId: null,
     sort: {},
     page: 1,
     pageSize: 10,
+    sortOptions: { sortField: "createdAt", sortOrder: "desc" },
+  };
+  const [filterPage, setFilterPage] = React.useState(() => {
+    const dataFilter = getItemLocalStore("partnerPageFilter");
+    return dataFilter ? dataFilter : FILTERPAGE_INIT;
   });
 
   function toggleDropdown() {
@@ -91,37 +70,174 @@ const PartnerPage = () => {
     setIsOpen(false);
     setActiveRowId(null);
   }
-  const handleHref = (path) => {
-    if (path) {
-      window.open(path, "_blank");
-    }
-  };
+
   const LoadData = async () => {
-    //const response = await GetAllForm(filterPage);
     if (isBusy) {
       return;
     }
     setIsBusy(true);
-    GetAllForm(filterPage)
+    setItemLocalStore("partnerPageFilter", filterPage);
+    var filterPage_v2 = { ...filterPage };
+    if (filterPage_v2.sortOptions !== null) {
+      const sortDirection =
+        filterPage_v2.sortOptions.sortOrder.toLowerCase() === "asc" ? 1 : -1;
+      filterPage_v2.sortOptions = {
+        [filterPage_v2.sortOptions.sortField]: sortDirection,
+      };
+    }
+
+    GetAllPartner(filterPage_v2)
       .then((res) => {
         console.log("res", res);
 
         if (res.success) {
           setData(res.data);
+          setTotalRecords(res.metaData.totalRecords);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setIsBusy(false);
+      });
+  };
+
+  const DeleteData = async (id) => {
+    if (isBusy) {
+      return;
+    }
+    setIsBusy(true);
+    DeletePartner(id)
+      .then((res) => {
+        console.log("res", res);
+
+        if (res.success) {
+          toast.success("Delete Success!");
+          LoadData();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setIsBusy(false);
+      });
+  };
+
+  const [visibleModalImport, setVisibleModalImport] = React.useState(false);
+  const [requestImport, setRequestImport] = React.useState({
+    files: null,
+    fromRow: 1,
+    toRow: 1,
+  });
+  const jsonToFormData = (json) => {
+    const formData = new FormData();
+    Object.entries(json).forEach(([key, value]) => {
+      formData.append(
+        key,
+        value instanceof Object && !(value instanceof File)
+          ? JSON.stringify(value)
+          : value
+      );
+    });
+    return formData;
+  };
+  const ImportData = async () => {
+    if (requestImport.files == null) {
+      return;
+    }
+    if (
+      requestImport.fromRow == requestImport.toRow ||
+      requestImport.fromRow > requestImport.toRow ||
+      requestImport.toRow > requestImport.maxRow
+    ) {
+      toast("Recheck from row and to row!");
+      return;
+    }
+    var formData = jsonToFormData(requestImport);
+
+    ImportPartner(formData)
+      .then((response) => {
+        if (response.success) {
+          setVisibleModalImport(false);
+          if (response.data.failed === 0) {
+            toast.success("Import successful !");
+          } else {
+            window.location.href = response.data.URL_dowloadFailed;
+            toast.success(
+              `Import is successful but your import file has ${response.data.failed} wrong lines!`
+            );
+          }
+        } else {
+          window.location.href = response.data.URL_dowloadFailed;
+          toast.error("Import failed !");
+        }
+        setIsOpen(false);
+      })
+      .catch((err) => {})
+      .finally(() => {});
+  };
+  const DowloadTemplate = () => {};
+  const ExportData = async () => {
+    var filterPage_v2 = { ...filterPage };
+
+    const sortDirection =
+      filterPage_v2.sortOptions.sortOrder.toLowerCase() === "asc" ? 1 : -1;
+    filterPage_v2.sortOptions = {
+      [filterPage_v2.sortOptions.sortField]: sortDirection,
+    };
+    ExportPartner(filterPage_v2)
+      .then((response) => {
+        if (response.success) {
+          toast.success("Export Success!");
+          window.location.href = response.data;
         }
       })
       .catch((err) => {})
-      .finally(() => {
-        setIsBusy(true);
-      });
+      .finally(() => {});
   };
+  const ExportDataNoFilter = async () => {
+    ExportAllPartner()
+      .then((response) => {
+        if (response.success) {
+          toast.success("Export Success!");
+          window.location.href = response.data;
+        }
+      })
+      .catch((err) => {})
+      .finally(() => {});
+    //res.data = url
+    //window.location.href = `http://localhost:5000${data.url}`;
+  };
+
+  const onDebounce = React.useCallback(
+    debounce((term) => {
+      setFilterPage({
+        ...filterPage,
+        keySearch: term.trim(),
+        page: 1,
+      });
+    }, 700),
+    []
+  );
+
   React.useEffect(() => {
     LoadData();
   }, [filterPage]);
+  console.log(filterPage);
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Partners" preLink="" />
-      <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+
+      <Filter
+        initValue={filterPage}
+        onChange={(e) => {
+          setFilterPage(e);
+        }}
+      />
+      <div className="min-h-[calc(100vh-180px)] max-h-[calc(100vh + 300px)] overflow-y-hidden custom-scrolbar  rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
         <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {/* <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -148,10 +264,11 @@ const PartnerPage = () => {
               <input
                 type="text"
                 placeholder="Search ..."
-                value={filterPage.keySearch}
-                onChange={(e) =>
-                  setFilterPage({ ...filterPage, keySearch: e.target.value })
-                }
+                value={keySearch}
+                onChange={(e) => {
+                  setKeySearch(e.target.value);
+                  onDebounce(e.target.value);
+                }}
                 className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[230px]"
               />
             </div>
@@ -163,9 +280,12 @@ const PartnerPage = () => {
               children={"Add new"}
               onClick={() => navigate("/partners/add")}
             />
-            {/* <Button
+            <Button
               variant="outline"
               size="sm"
+              onClick={() =>
+                setDrawer({ ...drawer, isOpen: true, position: "rightDrawer" })
+              }
               children={
                 <>
                   <BoxIcon className="size-5" />
@@ -173,7 +293,6 @@ const PartnerPage = () => {
                 </>
               }
             />
-            <Button variant="outline" size="sm" children={"See all"} />
 
             <div className="relative inline-block">
               <button
@@ -191,22 +310,37 @@ const PartnerPage = () => {
                 className="w-40 p-2"
               >
                 <DropdownItem
-                  onItemClick={closeDropdown}
+                  onItemClick={() => {
+                    closeDropdown();
+                    setVisibleModalImport(true);
+                  }}
                   className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                 >
-                  View More
+                  Import Data
                 </DropdownItem>
                 <DropdownItem
-                  onItemClick={closeDropdown}
+                  onItemClick={() => {
+                    closeDropdown();
+                    ExportData();
+                  }}
                   className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                 >
-                  ...
+                  Export With Filter
+                </DropdownItem>
+                <DropdownItem
+                  onItemClick={() => {
+                    closeDropdown();
+                    ExportDataNoFilter();
+                  }}
+                  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                >
+                  Export All Data
                 </DropdownItem>
               </Dropdown>
-            </div> */}
+            </div>
           </div>
         </div>
-        <div className="max-w-full overflow-x-auto ">
+        <div className=" max-w-full overflow-x-auto ">
           <Table>
             {/* Table Header */}
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
@@ -215,29 +349,24 @@ const PartnerPage = () => {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Title/discription
+                  Name / images
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Fields length
+                  Phone
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Sheet Id
+                  Tag
                 </TableCell>
+
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Status
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 w-[100px] text-center"
+                  className=" py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 w-[100px] text-center"
                 >
                   Actions
                 </TableCell>
@@ -247,212 +376,155 @@ const PartnerPage = () => {
             {/* Table Body */}
 
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {data?.length > 0 &&
-                data.map((item) => (
-                  <TableRow
-                    onClick={() => setActiveRow(item)}
-                    onDoubleClick={() => {
-                      setVisibleModal(true);
-                    }}
-                    key={item._id}
-                    className="hover:shadow-sm hover:bg-gray-100"
-                  >
-                    <TableCell className="py-3 px-2">
-                      <div className="flex items-center gap-3">
-                        <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                          <img
-                            src={"images/orther/empty.png"}
-                            className="h-[50px] w-[50px]"
-                            alt={item.name}
-                            style={{ objectFit: "contain" }}
-                          />
-                        </div>
-                        <div className="w-[300px] truncate">
-                          <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item.title}
-                          </p>
-                          <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                            {item.discription || "Customer feedback survey"}
-                          </span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {item?.formDetail?.length > 0
-                        ? JSON.parse(item?.formDetail)?.length
-                        : 0}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div className="w-[200px] truncate">{item.sheetId}</div>
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <Badge
-                        size="sm"
-                        color={
-                          item.status === "Publish"
-                            ? "success"
-                            : item.status === "Save"
-                            ? "warning"
-                            : "error"
-                        }
+              {isBusy ? (
+                <TableRow>
+                  <TableCell colSpan={3}>
+                    <LottieComponent />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <>
+                  {data?.length > 0 &&
+                    data.map((item) => (
+                      <TableRow
+                        onClick={() => setActiveRow(item)}
+                        onDoubleClick={() => {
+                          navigate(`edit/${item._id}`);
+                        }}
+                        key={item._id}
+                        className="hover:shadow-sm hover:bg-gray-100"
                       >
-                        {item.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div className="flex item-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          children={"Edit"}
-                          onClick={() => {
-                            navigate(`/edit-form/${item._id}`);
-                          }}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          children={"Delete"}
-                          onClick={() => {
-                            alert("Confirm delete");
-                          }}
-                        />
-                        <div className="relative inline-block  ">
-                          <button
-                            className="dropdown-toggle my-2"
-                            onClick={() => {
-                              toggleDropdown();
-                              setActiveRowId(item._id);
-                            }}
-                          >
-                            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
-                          </button>
-                          <Dropdown
-                            isOpen={isOpen && item._id == activeRowId}
-                            onClose={closeDropdown}
-                            className="w-40 p-2"
-                          >
-                            <DropdownItem
-                              onItemClick={() => {
-                                closeDropdown();
-                                setActiveRow(item);
-                                setVisibleModal(true);
+                        <TableCell className="py-3 px-2">
+                          <div className="flex items-center gap-3">
+                            <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
+                              <img
+                                src={
+                                  item.images.length > 0
+                                    ? item.images[0].imageAbsolutePath
+                                    : "images/orther/empty.png"
+                                }
+                                className="h-[50px] w-[50px]"
+                                alt={item.name}
+                                style={{ objectFit: "contain" }}
+                              />
+                            </div>
+                            <div className="w-[300px] truncate">
+                              <p className=" font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {item.name}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 px-2">
+                          <p className="text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {item?.phone}
+                          </p>
+                        </TableCell>
+                        <TableCell className="py-3 px-2">
+                          <p className="text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                            {"Thân thiết"}
+                          </p>
+                        </TableCell>
+
+                        <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                          <div className="flex item-center gap-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              children={"Edit"}
+                              onClick={() => {
+                                navigate(`edit/${item._id}`);
                               }}
-                              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                              View more
-                            </DropdownItem>
-                            <DropdownItem
-                              onItemClick={closeDropdown}
-                              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                              Publish form
-                            </DropdownItem>
-                            <DropdownItem
-                              onItemClick={closeDropdown}
-                              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                              View Sheet data
-                            </DropdownItem>
-                            <DropdownItem
-                              onItemClick={closeDropdown}
-                              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                              Visit form
-                            </DropdownItem>
-                            <DropdownItem
-                              onItemClick={closeDropdown}
-                              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                              ...
-                            </DropdownItem>
-                          </Dropdown>
-                        </div>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              children={"Delete"}
+                              onClick={() => {
+                                setVisibleModal(true);
+                                setActiveRow(item);
+                              }}
+                            />
+                            <div className="relative inline-block  ">
+                              <button
+                                className="dropdown-toggle my-2"
+                                onClick={() => {
+                                  toggleDropdown();
+                                  setActiveRowId(item._id);
+                                }}
+                              >
+                                <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
+                              </button>
+                              <Dropdown
+                                isOpen={isOpen && item._id == activeRowId}
+                                onClose={closeDropdown}
+                                className="w-40 p-2"
+                              >
+                                <DropdownItem
+                                  onItemClick={() => {
+                                    closeDropdown();
+                                    setActiveRow(item);
+                                  }}
+                                  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                                >
+                                  View more
+                                </DropdownItem>
+                                <DropdownItem
+                                  onItemClick={closeDropdown}
+                                  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                                >
+                                  ...
+                                </DropdownItem>
+                              </Dropdown>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </>
+              )}
             </TableBody>
           </Table>
         </div>
-        {data?.length > 0 ? <Pagination pageFilter={{}} /> : <EmptyData />}
+
+        {!isBusy ? (
+          data?.length > 0 ? (
+            <MyPagination
+              filterPage={filterPage}
+              setFilterPage={setFilterPage}
+              totalRecords={totalRecords}
+            />
+          ) : (
+            <EmptyData />
+          )
+        ) : (
+          <></>
+        )}
+
         <Modal
           isOpen={visibleModal}
           setIsOpen={setVisibleModal}
-          title={"Form detail"}
-          onConfirm={() => setVisibleModal(false)}
-          hiddenButtomConfirm={true}
+          title={"Confirm"}
+          onConfirm={() => {
+            DeleteData(activeRow._id);
+            setVisibleModal(false);
+          }}
+          hiddenButtomConfirm={false}
+          textButtomConfirm="Confirm"
         >
-          <div className="grid grid-cols-1 gap-2">
-            <div>
-              <Label children={"Title"} />
-              <TextArea value={activeRow?.title} readOnly={true} />
-            </div>
-            <div>
-              <Label children={"Discription"} />
-              <TextArea value={activeRow?.discription} readOnly={true} />
-            </div>
-            <div>
-              <Label children={"Sheet ID"} />
-              <Input value={activeRow?.sheetId} readOnly={true} />
-            </div>
-            <div className="flex justify-center gap-3">
-              <Button
-                size="sm"
-                onClick={() => handleHref(activeRow?.linkSubmitForm)}
-                children={
-                  <>
-                    <BoxIcon className="size-5" />
-                    Visit Form
-                  </>
-                }
-              />
-              <Button
-                size="sm"
-                onClick={() => handleHref(activeRow?.linkToGGSheet)}
-                children={
-                  <>
-                    <BoxIcon className="size-5" />
-                    Visit GG Sheet
-                  </>
-                }
-              />
-              <Button
-                size="sm"
-                onClick={() => navigate(`/edit-form/${activeRow._id}`)}
-                children={
-                  <>
-                    <BoxIcon className="size-5" />
-                    Edit form
-                  </>
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label children={"Number Of Record"} />
-                <Input value={activeRow?.count} readOnly={true} />
-              </div>
-              <div>
-                <Label children={"Number Of fields"} />
-                <Input
-                  value={
-                    activeRow?.formDetail?.length > 0
-                      ? JSON.parse(activeRow.formDetail)?.length
-                      : 0
-                  }
-                  readOnly={true}
-                />
-              </div>
-            </div>
-            <div>
-              <Label
-                className={"text-end"}
-                children={`Created by userId ${activeRow?.userId}`}
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-2 text-lg">
+            Are you sure you want to delete?
           </div>
         </Modal>
+
+        <UploadExcelFile
+          ImportData={ImportData}
+          DowloadTemplate={DowloadTemplate}
+          initData={requestImport}
+          onChange={(e) => setRequestImport(e)}
+          isOpen={visibleModalImport}
+          setIsOpen={setVisibleModalImport}
+        />
       </div>
     </div>
   );

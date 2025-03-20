@@ -1,15 +1,24 @@
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
 import "../App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useContext, useEffect } from "react";
+import { MainContext } from "../context/MainContext";
 
 const LayoutContent = () => {
+  const context = useContext(MainContext);
+  const navigate = useNavigate();
+  const { user } = context;
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/signin", { replace: true });
+  //   }
+  // }, []);
   return (
     <div className="min-h-screen xl:flex">
       <div>
