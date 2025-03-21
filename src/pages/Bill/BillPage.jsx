@@ -406,7 +406,7 @@ const BillPage = () => {
                       <TableRow
                         onClick={() => setActiveRow(item)}
                         onDoubleClick={() => {
-                          navigate(`/${type}}/edit/${item._id}`);
+                          navigate(`/${type}/edit/${item._id}`);
                         }}
                         key={item._id}
                         className="hover:shadow-sm hover:bg-gray-100"
@@ -435,9 +435,9 @@ const BillPage = () => {
                         <TableCell className="py-3 px-2">
                           <p className="text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
                             {item?.isConfirm ? (
-                              <Bage status={true} title={"Đã duyệt"} />
+                              <Bage status={true} title={"Approved"} />
                             ) : (
-                              <Bage status={false} title={"Chưa duyệt"} />
+                              <Bage status={false} title={"Pending"} />
                             )}
                           </p>
                         </TableCell>

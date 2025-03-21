@@ -65,7 +65,7 @@ export default function ChooseLangComponent() {
     <div className=" relative">
       <div
         id="states-button"
-        className=" w-full flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+        className=" w-full bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 rounded-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
         onClick={() => setExpand(!expand)}
       >
         <img
@@ -92,7 +92,7 @@ export default function ChooseLangComponent() {
               );
             }}
           />
-          <div className="z-100 w-full  bg-white divide-y divide-gray-100 rounded-lg shadow  max-h-[150px] overflow-x-hidden custom-scrollbar">
+          <div className="z-100 w-full  divide-y divide-gray-100 rounded-lg shadow  max-h-[150px] overflow-x-hidden custom-scrollbar">
             <ul
               className="py-2 text-sm text-gray-700"
               aria-labelledby="states-button"

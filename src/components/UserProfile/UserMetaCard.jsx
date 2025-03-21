@@ -3,21 +3,98 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import React from "react";
+import DropzoneComponentV2 from "../form/form-elements/DropZoneV2";
+import { CloseIcon } from "../../icons";
+import { UpdateUserProfile, SeachUserProfiles } from "../../api/authService";
+import { MainContext } from "../../context/MainContext";
+import { getItemLocalStore, getDataFromToken } from "../../hooks/useLocalStore";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [images, setImages] = React.useState([]);
+  const [profile, setProfile] = React.useState(null);
+  const [request, setRequest] = React.useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+  });
+  const jsonToFormData = (json) => {
+    const formData = new FormData();
+    Object.entries(json).forEach(([key, value]) => {
+      formData.append(
+        key,
+        value instanceof Object && !(value instanceof File)
+          ? JSON.stringify(value)
+          : value
+      );
+    });
+    return formData;
+  };
+
   const handleSave = () => {
+    const token = getItemLocalStore("^token");
+    const user = getDataFromToken(token);
     // Handle save logic here
-    console.log("Saving changes...");
+    var formData = jsonToFormData(request);
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        formData.append("files", images[i].imageFile);
+      }
+    }
+
+    UpdateUserProfile(user.id, formData)
+      .then((response) => {
+        console.log("res", response);
+      })
+      .catch((err) => {})
+      .finally(() => {});
     closeModal();
   };
+  const LoadData = () => {
+    const token = getItemLocalStore("^token");
+    const user = getDataFromToken(token);
+    // Handle save logic here
+
+    SeachUserProfiles(user.id)
+      .then((response) => {
+        if (response.success) {
+          setProfile(response.data);
+        }
+      })
+      .catch((err) => {})
+      .finally(() => {});
+    closeModal();
+  };
+  const handleDeleteImage = (img) => {
+    var indexToRemove = images.indexOf(img);
+    console.log("indexToRemove", indexToRemove);
+
+    if (indexToRemove != -1) {
+      var copyImages = [...images];
+      copyImages = copyImages.filter((_, index) => index !== indexToRemove);
+      setImages(copyImages);
+    }
+  };
+
+  React.useEffect(() => {
+    LoadData();
+  }, []);
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
             <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src="/images/user/user-05.jpg" alt="user" />
+              <img
+                style={{ objectFit: "contain" }}
+                src={
+                  profile?.avatar
+                    ? profile?.avatar?.imageAbsolutePath
+                    : "/images/user/user-05.jpg"
+                }
+                alt="user"
+              />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
@@ -148,50 +225,10 @@ export default function UserMetaCard() {
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
               Edit Personal Information
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
           </div>
-          <form className="flex flex-col">
+          <div className="flex flex-col">
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div>
               <div className="mt-7">
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
-                </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
                     <Label>First Name</Label>
@@ -217,6 +254,54 @@ export default function UserMetaCard() {
                     <Label>Bio</Label>
                     <Input type="text" value="Team Manager" />
                   </div>
+                  <div className="col-span-2">
+                    <Label>Avatar</Label>
+                    <DropzoneComponentV2
+                      multiple={false}
+                      typeDataReturn={"file"}
+                      imagesInit={images}
+                      onUpload={(dataReturn) => {
+                        // setRequest({
+                        //   ...request,
+                        //   file: [dataReturn],
+                        // });
+                        setImages(dataReturn);
+                      }}
+                    />
+                    {images?.length > 0 &&
+                      images.map((itemImg) => (
+                        <div key={Math.random()}>
+                          {(itemImg.imageBase64String != "" ||
+                            itemImg.imageAbsolutePath != "") && (
+                            <div className="flex items-center space-x-4 border border-gray-300 dark:border-gray-700 rounded-lg relative my-4 p-2">
+                              <div className=" w-[100px] h-[100px]  ">
+                                <img
+                                  src={
+                                    itemImg.isNewUpload
+                                      ? itemImg.imageBase64String
+                                      : itemImg.imageAbsolutePath
+                                  }
+                                  className="w-full h-full"
+                                  style={{ objectFit: "contain" }}
+                                />
+                                <div
+                                  className="hover:bg-red-500 absolute top-0 right-0  translate-x-2 -translate-y-2 p-2 bg-gray-800 text-white rounded-lg dark:bg-white dark:text-black"
+                                  onClick={() => {
+                                    handleDeleteImage(itemImg);
+                                    console.log("delete", itemImg);
+                                  }}
+                                >
+                                  <CloseIcon className="size-5 " />
+                                </div>
+                              </div>
+                              <h3 className="text-lg  flex-1 truncate ">
+                                {itemImg.fileName}
+                              </h3>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -228,7 +313,7 @@ export default function UserMetaCard() {
                 Save Changes
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </Modal>
     </>

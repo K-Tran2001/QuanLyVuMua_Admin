@@ -26,6 +26,8 @@ export default function SignInForm() {
     if (response.success) {
       const token = response.data.accessToken;
       setItemLocalStore("^token", token);
+      console.log("getDataFromToken(token)", getDataFromToken(token));
+
       setUser(getDataFromToken(token));
       navigate("/");
     }

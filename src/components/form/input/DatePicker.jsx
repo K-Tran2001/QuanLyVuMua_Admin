@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
-import { CalenderIcon } from "../../../../src_backup/icons";
-import Label from "../Label";
-const DatePicker = () => {
+
+import { CalenderIcon } from "../../../icons";
+const DatePicker = ({ onChange }) => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   console.log("dateOfBirth", dateOfBirth);
 
   const handleDateChange = (date) => {
     // setDateOfBirth(date[0].toLocaleDateString()); // Handle selected date and format it
     setDateOfBirth(date[0]);
+    onChange(date[0]);
   };
 
   return (
     <div>
-      <div className="relative w-full flatpickr-wrapper">
+      <div className="relative w-full flatpickr-wrapper z-999999999999999">
         <Flatpickr
           value={dateOfBirth} // Set the value to the state
           onChange={handleDateChange} // Handle the date change

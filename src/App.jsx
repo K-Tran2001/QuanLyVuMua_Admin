@@ -38,6 +38,7 @@ import { useContext } from "react";
 import moment from "moment/moment";
 import PlantCategoryPage from "./pages/Category/PlantCategoryPage";
 import PesticideCategoryPage from "./pages/Category/PesticideCategoryPage";
+import UserProfiles from "./pages/UserProfiles";
 
 export default function App() {
   const PrivateRoute = () => {
@@ -65,6 +66,7 @@ export default function App() {
             {/* <Route element={<PrivateRoute />}> */}
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
+              <Route index path="/profile" element={<UserProfiles />} />
               <Route
                 index
                 path="/plant-categories"

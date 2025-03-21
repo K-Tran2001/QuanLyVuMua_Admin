@@ -10,62 +10,64 @@ import {
   PlugInIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import Label from "../components/form/Label";
 
 const navItems = [
   {
     icon: <GridIcon />,
     name: "Home",
-    subItems: [
-      { name: "Ecommerce", path: "/", pro: false },
-      {
-        name: "Dashboard PRO",
-        path: "https://demo.tailadmin.com/calendar",
-        pro: false,
-      },
-    ],
+    path: "/",
+    // subItems: [
+    //   { name: "Ecommerce", path: "/", pro: false },
+    //   {
+    //     name: "Dashboard PRO",
+    //     path: "https://demo.tailadmin.com/calendar",
+    //     pro: false,
+    //   },
+    // ],
   },
   {
     icon: <CalenderIcon />,
-    name: "Cay trong",
+    name: "Plants",
     path: "/plants",
   },
   {
     icon: <CalenderIcon />,
-    name: "Thuoc BVTV",
+    name: "Pesticides",
     path: "/pesticides",
   },
   {
     icon: <CalenderIcon />,
-    name: "Vuon",
+    name: "Gardens",
     path: "/gardens",
   },
 
   {
     icon: <CalenderIcon />,
-    name: "Doi tac",
+    name: "Partners",
     path: "/partners",
   },
   {
     icon: <CalenderIcon />,
-    name: "Phan loai",
+    name: "Categories",
     //path: "/plant-categories",
     subItems: [
-      { name: "Loai cay", path: "/plant-categories", pro: false },
-      { name: "Loai thuoc BVTV", path: "/pesticide-categories", pro: false },
+      { name: "C-Plant ", path: "/plant-categories", pro: false },
+      { name: "C-Pesticides", path: "/pesticide-categories", pro: false },
     ],
   },
 
   {
     icon: <CalenderIcon />,
-    name: "Mua - ban",
+    name: "Invoices",
     subItems: [
-      { name: "Hóa đơn bán", path: "/sales-invoices", pro: false },
-      { name: "Hóa đơn mua", path: "/purchase-invoices", pro: false },
+      { name: "I-Sales", path: "/sales-invoices", pro: false },
+      { name: "I-Purchase", path: "/purchase-invoices", pro: false },
     ],
   },
   {
     icon: <CalenderIcon />,
-    name: "Lịch",
+    name: "Calendars",
     path: "/calendars",
   },
   {
@@ -367,7 +369,10 @@ const AppSidebar = () => {
           </div>
           <div className="h-[190px]">
             {((!isExpanded && isHovered) || isExpanded) && (
-              <ChooseLangComponent />
+              <div className="mt-4">
+                <Label children={"Language"} />
+                <ChooseLangComponent />
+              </div>
             )}
           </div>
         </nav>

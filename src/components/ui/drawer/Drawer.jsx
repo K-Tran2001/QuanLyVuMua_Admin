@@ -9,7 +9,6 @@ const Drawer = ({ children }) => {
     leftDrawer: `top-0 left-0 ${drawer.isOpen ? "" : "-translate-x-full"}`,
     rightDrawer: `top-0 right-0 ${drawer.isOpen ? "" : "translate-x-full"}`,
   };
-  console.log("positions[position]", positions[drawer.children]);
 
   return (
     <div>

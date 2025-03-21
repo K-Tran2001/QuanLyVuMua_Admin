@@ -35,22 +35,6 @@ const DropzoneComponentV2 = ({
     }
   };
 
-  const [error, setError] = React.useState([]);
-  const onValidate = () => {
-    const ids = [];
-    for (const key in dataForm) {
-      if (dataForm.hasOwnProperty(key)) {
-        if (
-          dataForm[key].required === true &&
-          (dataForm[key].value === "" || dataForm[key].value == null)
-        ) {
-          ids.push(key);
-        }
-      }
-    }
-    setError(ids);
-    return ids.length == 0;
-  };
   const onDrop = (acceptedFiles) => {
     handleImageUpload(acceptedFiles[0]);
   };
@@ -69,7 +53,7 @@ const DropzoneComponentV2 = ({
   }, [imagesInit]);
   return (
     <div>
-      {(multiple || (!multiple && data.imageBase64String === "")) && (
+      {(multiple || (!multiple && datas.length == 0)) && (
         <div
           className={`transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl ${
             !readOnly ? "hover:border-brand-500" : ""

@@ -6,6 +6,7 @@ import Input from "../../components/form/input/InputField";
 
 const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
   const INIT_REQUEST = {
+    id: null,
     productName: "",
     price: "",
     number: "",
@@ -33,7 +34,7 @@ const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
     const n1 = Number(num);
     return isNaN(n1) ? 0 : n1;
   };
-  const handleAddDetail = () => {
+  const handleChangeDetail = () => {
     if (!onValidate()) {
       return;
     }
@@ -42,16 +43,27 @@ const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
     total =
       converNumber(request.price) * converNumber(request.number) -
       converNumber(request.loss);
-    const newDetail = [
-      ...detail,
-      {
-        ...request,
-        price: converNumber(request.price),
-        number: converNumber(request.number),
-        loss: converNumber(request.loss),
-        total,
-      },
-    ];
+    var newDetail = [];
+    if (request.id == null) {
+      newDetail = [
+        ...detail,
+        {
+          ...request,
+          id: Math.random(),
+          price: converNumber(request.price),
+          number: converNumber(request.number),
+          loss: converNumber(request.loss),
+          total,
+        },
+      ];
+    } else {
+      const indexToUpdate = detail.findIndex((item) => item?.id == request?.id);
+      if (indexToUpdate != -1) {
+        newDetail = [...detail];
+        newDetail[newDetail] = request;
+      }
+    }
+
     setDetail(newDetail);
     onChange(newDetail);
     setRequest(INIT_REQUEST);
@@ -61,12 +73,16 @@ const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
     var indexToRemove = detail.indexOf(itemDelete);
 
     if (indexToRemove != -1) {
+      if (itemDelete.id == request.id) {
+        setRequest({ ...request, id: null });
+      }
       var copyDetail = [...detail];
       copyDetail = copyDetail.filter((_, index) => index !== indexToRemove);
       setDetail(copyDetail);
       onChange(copyDetail);
     }
   };
+
   React.useEffect(() => {
     if (initData) setDetail(initData);
   }, [initData]);
@@ -150,9 +166,9 @@ const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
                 }}
               />
               <Button
-                children={"Add"}
+                children={request.id ? "Update" : "Add"}
                 className="mt-6"
-                onClick={handleAddDetail}
+                onClick={handleChangeDetail}
               />
             </div>
           </>
@@ -190,6 +206,7 @@ const AddBillDetailComponent = ({ isEdit, isConfirm, initData, onChange }) => {
                       detail.map((itemDetail) => (
                         <tr
                           key={Math.random()}
+                          onClick={() => setRequest(itemDetail)}
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
                         >
                           <th

@@ -2,94 +2,85 @@ import Chart from "react-apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import { useState } from "react";
+import React, { useState } from "react";
+import { GetRevenue12Month } from "../../api/dashboardService";
 
 export default function MonthlySalesChart() {
-  const options = {
-    colors: ["#465fff"],
-    chart: {
-      fontFamily: "Outfit, sans-serif",
-      type: "bar",
-      height: 180,
-      toolbar: {
-        show: false,
+  const [dataChart, setDataChart] = React.useState([
+    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+    100000, 100000,
+  ]);
+  const [isBusy, setIsBusy] = React.useState(false);
+  const LoadData = async () => {
+    //const response = await GetAllForm(filterPage);
+    if (isBusy) {
+      return;
+    }
+    setIsBusy(true);
+    GetRevenue12Month()
+      .then((res) => {
+        if (res.success) {
+          setDataChart(res.data.monthlyRevenue);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setIsBusy(false);
+      });
+  };
+  const options = React.useMemo(
+    () => ({
+      colors: ["#465fff"],
+      chart: {
+        fontFamily: "Outfit, sans-serif",
+        type: "bar",
+        height: 180,
+        toolbar: { show: false },
       },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "39%",
-        borderRadius: 5,
-        borderRadiusApplication: "end",
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: true,
-      width: 4,
-      colors: ["transparent"],
-    },
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: "left",
-      fontFamily: "Outfit",
-    },
-    yaxis: {
-      title: {
-        text: undefined,
-      },
-    },
-    grid: {
-      yaxis: {
-        lines: {
-          show: true,
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: "39%",
+          borderRadius: 5,
+          borderRadiusApplication: "end",
         },
       },
-    },
-    fill: {
-      opacity: 1,
-    },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 4, colors: ["transparent"] },
+      xaxis: {
+        categories: [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ],
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+      },
+      legend: { show: true, position: "top", horizontalAlign: "left" },
+      yaxis: { title: { text: undefined } },
+      grid: { yaxis: { lines: { show: true } } },
+      fill: { opacity: 1 },
+      tooltip: { x: { show: false }, y: { formatter: (val) => `${val}` } },
+    }),
+    []
+  );
 
-    tooltip: {
-      x: {
-        show: false,
-      },
-      y: {
-        formatter: (val) => `${val}`,
-      },
-    },
-  };
-  const series = [
-    {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
-    },
-  ];
+  const series = React.useMemo(
+    () => [{ name: "Sales", data: dataChart }],
+    [dataChart]
+  );
+
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
@@ -99,6 +90,15 @@ export default function MonthlySalesChart() {
   function closeDropdown() {
     setIsOpen(false);
   }
+  React.useEffect(() => {
+    LoadData();
+  }, []);
+  const [chartKey, setChartKey] = useState(0);
+
+  React.useEffect(() => {
+    setChartKey((prev) => prev + 1); // Force re-render chart smoothly
+  }, [dataChart]);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
@@ -132,7 +132,13 @@ export default function MonthlySalesChart() {
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
         <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-          <Chart options={options} series={series} type="bar" height={180} />
+          <Chart
+            key={chartKey}
+            options={options}
+            series={series}
+            type="bar"
+            height={180}
+          />
         </div>
       </div>
     </div>

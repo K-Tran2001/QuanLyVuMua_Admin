@@ -1,8 +1,9 @@
 import axios from "axios";
-import { getItemLocalStore } from "../hooks/useLocalStore";
+import { getDataFromToken, getItemLocalStore } from "../hooks/useLocalStore";
 
 export const Proxy = async (method, api, request, isUseToken = true) => {
-  const user = getItemLocalStore("^token")
+  const token = getItemLocalStore("^token")
+  const user = getDataFromToken(token)
   const config = {
     ...(isUseToken && {
       headers: { Authorization: `Bearer ${user?.accessToken}` },
