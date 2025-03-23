@@ -306,7 +306,7 @@ const PartnerPage = () => {
                           size="sm"
                           children={"Edit"}
                           onClick={() => {
-                            navigate(`/edit-form/${item._id}`);
+                            navigate(`/forms/edit/${item._id}`);
                           }}
                         />
                         <Button
@@ -419,7 +419,7 @@ const PartnerPage = () => {
               />
               <Button
                 size="sm"
-                onClick={() => navigate(`/edit-form/${activeRow._id}`)}
+                onClick={() => navigate(`/forms-edit/${activeRow._id}`)}
                 children={
                   <>
                     <BoxIcon className="size-5" />

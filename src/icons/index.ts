@@ -52,6 +52,14 @@ import { ReactComponent as ChatIcon } from "./chat.svg?react";
 import { ReactComponent as MoreDotIcon } from "./moredot.svg?react";
 import { ReactComponent as AlertHexaIcon } from "./alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "./info-hexa.svg?react";
+import { ReactComponent as PlantIcon } from "./plant.svg?react";
+import { ReactComponent as GardenIcon } from "./garden.svg?react";
+import { ReactComponent as PesticideIcon } from "./pesticide.svg?react";
+import { ReactComponent as CategoryIcon } from "./category.svg?react";
+import { ReactComponent as PartnerIcon } from "./partner.svg?react";
+import { ReactComponent as InvoiceIcon } from "./invoice.svg?react";
+import { ReactComponent as ChatBotIcon } from "./chat-bot.svg?react";
+
 
 export {
   ErrorHexaIcon,
@@ -108,4 +116,11 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  PlantIcon,
+  CategoryIcon,
+  PartnerIcon, 
+  PesticideIcon,
+  ChatBotIcon,
+  GardenIcon,
+  InvoiceIcon
 };

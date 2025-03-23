@@ -39,6 +39,9 @@ import moment from "moment/moment";
 import PlantCategoryPage from "./pages/Category/PlantCategoryPage";
 import PesticideCategoryPage from "./pages/Category/PesticideCategoryPage";
 import UserProfiles from "./pages/UserProfiles";
+import ListForm from "./pages/Form/ListForm";
+import EditForm from "./pages/Form/EditForm/EditForm";
+import FormSubmit from "./pages/Form/FormSubmit/FormSubmit";
 
 export default function App() {
   const PrivateRoute = () => {
@@ -139,6 +142,9 @@ export default function App() {
 
               {/* Others Page */}
               <Route path="/blank" element={<Blank />} />
+              <Route index path="/forms" element={<ListForm />} />
+              <Route index path="/forms/add" element={<EditForm />} />
+              <Route index path="/forms/edit/:id" element={<EditForm />} />
             </Route>
             {/* </Route> */}
 
@@ -151,6 +157,7 @@ export default function App() {
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />
+            <Route index path="/forms/submit/:id" element={<FormSubmit />} />
           </Routes>
         </Router>
         {/* </AuthProvider> */}

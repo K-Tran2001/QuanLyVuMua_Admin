@@ -84,7 +84,7 @@ const AppHeader = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
+            {/* <img
               className="dark:hidden"
               src="./images/logo/logo.svg"
               alt="Logo"
@@ -93,7 +93,11 @@ const AppHeader = () => {
               className="hidden dark:block"
               src="./images/logo/logo-dark.svg"
               alt="Logo"
-            />
+            /> */}
+            <div className="text-3xl text-black dark:hidden">K-Admin</div>
+            <div className="text-3xl text-white/[0.9] hidden dark:block">
+              K-Admin
+            </div>
           </Link>
 
           <button

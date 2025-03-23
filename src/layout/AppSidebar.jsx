@@ -4,9 +4,17 @@ import ChooseLangComponent from "../components/language/ChooseLangComponent";
 // Assume these icons are imported from an icon library
 import {
   CalenderIcon,
+  CategoryIcon,
+  ChatBotIcon,
+  ChatIcon,
   ChevronDownIcon,
+  GardenIcon,
   GridIcon,
   HorizontaLDots,
+  InvoiceIcon,
+  PartnerIcon,
+  PesticideIcon,
+  PlantIcon,
   PlugInIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -27,28 +35,28 @@ const navItems = [
     // ],
   },
   {
-    icon: <CalenderIcon />,
+    icon: <PlantIcon />,
     name: "Plants",
     path: "/plants",
   },
   {
-    icon: <CalenderIcon />,
+    icon: <PesticideIcon />,
     name: "Pesticides",
     path: "/pesticides",
   },
   {
-    icon: <CalenderIcon />,
+    icon: <GardenIcon />,
     name: "Gardens",
     path: "/gardens",
   },
 
   {
-    icon: <CalenderIcon />,
+    icon: <PartnerIcon />,
     name: "Partners",
     path: "/partners",
   },
   {
-    icon: <CalenderIcon />,
+    icon: <CategoryIcon />,
     name: "Categories",
     //path: "/plant-categories",
     subItems: [
@@ -58,7 +66,7 @@ const navItems = [
   },
 
   {
-    icon: <CalenderIcon />,
+    icon: <InvoiceIcon />,
     name: "Invoices",
     subItems: [
       { name: "I-Sales", path: "/sales-invoices", pro: false },
@@ -71,7 +79,7 @@ const navItems = [
     path: "/calendars",
   },
   {
-    icon: <CalenderIcon />,
+    icon: <ChatBotIcon />,
     name: "Chat bot",
     path: "/chat-bot",
   },
@@ -89,7 +97,14 @@ const othersItems = [
 ];
 
 const AppSidebar = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const {
+    isExpanded,
+    setIsExpanded,
+    setIsMobileOpen,
+    isMobileOpen,
+    isHovered,
+    setIsHovered,
+  } = useSidebar();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -107,6 +122,10 @@ const AppSidebar = () => {
   );
 
   useEffect(() => {
+    if (isMobileOpen) {
+      setIsExpanded(false);
+      setIsMobileOpen(false);
+    }
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
       const items = menuType === "main" ? navItems : othersItems;
@@ -143,7 +162,6 @@ const AppSidebar = () => {
   }, [openSubmenu]);
 
   const handleSubmenuToggle = (index, menuType) => {
-    //menuType: "main" | "others"
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -305,7 +323,7 @@ const AppSidebar = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              {/* <img
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
@@ -318,15 +336,25 @@ const AppSidebar = () => {
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <div className="text-3xl text-black dark:hidden">K-Admin</div>
+              <div className="text-3xl text-white/[0.9] hidden dark:block">
+                K-Admin
+              </div>
             </>
           ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
+            // <img
+            //   src="/images/logo/logo-icon.svg"
+            //   alt="Logo"
+            //   width={32}
+            //   height={32}
+            // />
+            <>
+              <div className="text-2xl text-black dark:hidden">K</div>
+              <div className="text-2xl text-white/[0.9] hidden dark:block">
+                K
+              </div>
+            </>
           )}
         </Link>
       </div>
