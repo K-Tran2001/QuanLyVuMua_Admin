@@ -2,7 +2,6 @@ import * as React from "react";
 import * as Bs from "react-icons/bs";
 import { Draggable } from "@hello-pangea/dnd";
 
-import { StrictModeDroppable } from "./strictmode";
 import ItemForm from "./ItemForm_2";
 import Modal from "./Modal";
 import Label from "../../../components/form/Label";
@@ -21,6 +20,7 @@ import ItemSubmitForm from "./ItemSubmitForm";
 import { SaveForm, SeachForm, UpdateForm } from "../../../api/formService";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { StrictModeDroppable } from "./strictmode";
 
 export default function CenterPanel({ type }) {
   const context = React.useContext(MainContext);
