@@ -2,9 +2,10 @@
 import * as React from "react";
 
 import { Draggable } from "@hello-pangea/dnd";
-import FieldItem from "./fieldItem";
+
 import { StrictModeDroppable } from "./strictmode";
 import { MainContext } from "../../../context/MainContext";
+import FieldItem from "./fieldItem";
 
 export default function LeftPanel({ type }) {
   const context = React.useContext(MainContext);
