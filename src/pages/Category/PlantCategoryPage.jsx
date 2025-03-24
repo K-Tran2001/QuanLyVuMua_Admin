@@ -95,7 +95,6 @@ const PlantCategoryPage = () => {
         setIsBusy(false);
       });
   };
-  console.log(errors);
 
   const UpdateData = async () => {
     if (isBusy) {

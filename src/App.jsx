@@ -42,6 +42,7 @@ import UserProfiles from "./pages/UserProfiles";
 import ListForm from "./pages/Form/ListForm";
 import EditForm from "./pages/Form/EditForm/EditForm";
 import FormSubmit from "./pages/Form/FormSubmit/FormSubmit";
+import TranslatePage from "./pages/Translate/TranslatePage";
 
 export default function App() {
   const PrivateRoute = () => {
@@ -145,6 +146,7 @@ export default function App() {
               <Route index path="/forms" element={<ListForm />} />
               <Route index path="/forms/add" element={<EditForm />} />
               <Route index path="/forms/edit/:id" element={<EditForm />} />
+              <Route index path="/page-translate" element={<TranslatePage />} />
             </Route>
             {/* </Route> */}
 

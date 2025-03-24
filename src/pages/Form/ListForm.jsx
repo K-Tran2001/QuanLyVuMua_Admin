@@ -423,7 +423,9 @@ const ListForm = () => {
                 size="sm"
                 onClick={() => {
                   //navigate("/forms/submit/" + activeRow._id);
-                  handleHref(activeRow.linkSubmitForm);
+                  console.log(activeRow);
+                  const domain = window.location.origin;
+                  handleHref(domain + "/forms/submit/" + activeRow._id);
                 }}
                 children={
                   <>

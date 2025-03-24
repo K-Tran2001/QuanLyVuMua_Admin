@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import ChooseLangComponent from "../components/language/ChooseLangComponent";
 // Assume these icons are imported from an icon library
 import {
+  BoxCubeIcon,
   CalenderIcon,
   CategoryIcon,
   ChatBotIcon,
@@ -10,12 +11,17 @@ import {
   ChevronDownIcon,
   GardenIcon,
   GridIcon,
+  GroupIcon,
   HorizontaLDots,
   InvoiceIcon,
   PartnerIcon,
   PesticideIcon,
   PlantIcon,
   PlugInIcon,
+  ShootingStarIcon,
+  TableIcon,
+  TaskIcon,
+  UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import Label from "../components/form/Label";
@@ -35,28 +41,28 @@ const navItems = [
     // ],
   },
   {
-    icon: <PlantIcon />,
+    icon: <ShootingStarIcon />,
     name: "Plants",
     path: "/plants",
   },
   {
-    icon: <PesticideIcon />,
+    icon: <BoxCubeIcon />,
     name: "Pesticides",
     path: "/pesticides",
   },
   {
-    icon: <GardenIcon />,
+    icon: <GridIcon />,
     name: "Gardens",
     path: "/gardens",
   },
 
   {
-    icon: <PartnerIcon />,
+    icon: <GroupIcon />,
     name: "Partners",
     path: "/partners",
   },
   {
-    icon: <CategoryIcon />,
+    icon: <TableIcon />,
     name: "Categories",
     //path: "/plant-categories",
     subItems: [
@@ -66,7 +72,7 @@ const navItems = [
   },
 
   {
-    icon: <InvoiceIcon />,
+    icon: <TaskIcon />,
     name: "Invoices",
     subItems: [
       { name: "I-Sales", path: "/sales-invoices", pro: false },
@@ -79,7 +85,7 @@ const navItems = [
     path: "/calendars",
   },
   {
-    icon: <ChatBotIcon />,
+    icon: <ChatIcon />,
     name: "Chat bot",
     path: "/chat-bot",
   },
@@ -92,6 +98,17 @@ const othersItems = [
     subItems: [
       { name: "Sign In", path: "/signin", pro: false },
       { name: "Sign Up", path: "/signup", pro: false },
+    ],
+  },
+];
+
+const moreItems = [
+  {
+    icon: <PlugInIcon />,
+    name: "More",
+    subItems: [
+      { name: "Forms", path: "/forms", pro: false },
+      { name: "Page translate", path: "/page-translate", pro: false },
     ],
   },
 ];
@@ -393,6 +410,7 @@ const AppSidebar = () => {
                 )}
               </h2>
               {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(moreItems, "more")}
             </div>
           </div>
           <div className="h-[190px]">

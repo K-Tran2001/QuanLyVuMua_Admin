@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 
 import { CalenderIcon } from "../../../icons";
-const DatePicker = ({ onChange }) => {
+const DatePicker = ({ initValue = null, onChange }) => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   console.log("dateOfBirth", dateOfBirth);
 
@@ -12,6 +12,11 @@ const DatePicker = ({ onChange }) => {
     setDateOfBirth(date[0]);
     onChange(date[0]);
   };
+  useEffect(() => {
+    if (initValue != null) {
+      setDateOfBirth(initValue);
+    }
+  }, [initValue]);
 
   return (
     <div>
