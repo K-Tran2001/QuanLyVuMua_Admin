@@ -454,7 +454,7 @@ const PurchaseBillPage = () => {
                         </TableCell>
                         <TableCell className="py-3 px-2">
                           <p className="text-end font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item?.totalActual}
+                            {item?.totalActual?.toLocaleString()}
                           </p>
                         </TableCell>
 

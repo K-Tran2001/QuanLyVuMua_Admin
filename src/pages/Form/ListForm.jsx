@@ -345,34 +345,29 @@ const ListForm = () => {
                                 >
                                   View more
                                 </DropdownItem>
+
                                 <DropdownItem
                                   onItemClick={() => {
-                                    closeDropdown();
-                                    handlePublishForm();
-                                  }}
-                                  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                                >
-                                  Publish form
-                                </DropdownItem>
-                                <DropdownItem
-                                  onItemClick={() => {
+                                    handleHref(activeRow?.linkToGGSheet);
                                     closeDropdown();
                                   }}
                                   className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                                 >
                                   View Sheet data
                                 </DropdownItem>
+
                                 <DropdownItem
-                                  onItemClick={closeDropdown}
+                                  onItemClick={() => {
+                                    console.log(activeRow);
+                                    const domain = window.location.origin;
+                                    handleHref(
+                                      domain + "/forms/submit/" + activeRow._id
+                                    );
+                                    closeDropdown();
+                                  }}
                                   className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                                 >
                                   Visit form
-                                </DropdownItem>
-                                <DropdownItem
-                                  onItemClick={closeDropdown}
-                                  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                                >
-                                  ...
                                 </DropdownItem>
                               </Dropdown>
                             </div>

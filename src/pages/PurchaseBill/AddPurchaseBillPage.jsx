@@ -284,7 +284,7 @@ const AddPurchaseBillPage = () => {
               <Label children={`Detail`} />
               <Label
                 children={
-                  <h2 className="text-red-500">{`Total : ${sumTotal}`}</h2>
+                  <h2 className="text-red-500">{`Total : ${sumTotal?.toLocaleString()} `}</h2>
                 }
               />
             </div>

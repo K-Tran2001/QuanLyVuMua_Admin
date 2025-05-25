@@ -417,12 +417,12 @@ const GardenPage = () => {
                         </TableCell>
                         <TableCell className="py-3 px-2">
                           <p className="text-right font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item?.numberOfPlants}
+                            {item?.numberOfPlants?.toLocaleString()}
                           </p>
                         </TableCell>
                         <TableCell className="py-3 px-2">
                           <p className="text-right font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {item.landArea}
+                            {item.landArea?.toLocaleString()}
                           </p>
                         </TableCell>
 

@@ -30,17 +30,14 @@ import {
 import MessageItem from "./MessageItem";
 import { ChatWithGemini } from "../../api/geminiService";
 import MessageByUserItem from "./MessageByUserItem";
+import TypingComponent from "../../components/lotties/TypingComponent";
+import SendMessComponent from "./SendMessComponent";
 
 const ChatBotPage = () => {
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
-  const [chatHistory, setChatHistory] = useState([
-    { role: "user", text: "Hello" },
-    { role: "model", text: "Great to meet you. What would you like to know?" },
-    { role: "user", text: "Hello" },
-    { role: "model", text: "Great to meet you. What would you like to know?" },
-  ]);
+  const [chatHistory, setChatHistory] = useState([]);
 
   const chatContainerRef = useRef(null);
 
@@ -52,41 +49,9 @@ const ChatBotPage = () => {
     }
   }, [chatHistory]);
 
-  const handleSendMessage = async () => {
-    try {
-      setChatHistory([...chatHistory, { role: "user", text: message }]);
-      setIsBusy(true);
-      const res = await ChatWithGemini({
-        chatHistory: JSON.stringify(chatHistory),
-        userMessage: message,
-      });
-      var modelResponse = "...";
-      if (res.success) {
-        modelResponse = res.data;
-      }
-
-      setChatHistory([
-        ...chatHistory,
-        { role: "user", text: message },
-        { role: "model", text: modelResponse },
-      ]);
-      setResponse(modelResponse);
-      setMessage("");
-      setIsBusy(false);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      handleSendMessage();
-    }
-  };
   const handleClearHistory = () => {
     setChatHistory([]);
   };
-  console.log("chatHistory", chatHistory);
 
   return (
     <div>
@@ -98,33 +63,35 @@ const ChatBotPage = () => {
           style={{ maxHeight: "70vh" }}
         >
           {chatHistory.length > 0 ? (
-            chatHistory.map((mess) => (
+            chatHistory.map((mess, index) => (
               <div key={Math.random()}>
                 {mess.role === "model" ? (
-                  <MessageItem data={mess} />
+                  <MessageItem
+                    data={mess}
+                    isLastMessage={index == chatHistory.length - 1}
+                  />
                 ) : (
                   <MessageByUserItem data={mess} />
                 )}
               </div>
             ))
           ) : (
-            <></>
+            <div className="flex justify-center items-center h-full dark:text-white">
+              No message!
+            </div>
           )}
         </div>
+        {isBusy && <TypingComponent />}
 
         {/* Ô nhập tin nhắn cố định ở đáy */}
-        <div className=" sticky bottom-0  border-t p-2 flex gap-2 items-center border-gray-200 dark:border-gray-800">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type an message..."
-            className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
-          />
-
-          <Button children={"Send"} size="sm" onClick={handleSendMessage} />
-        </div>
+        <SendMessComponent
+          {...{
+            setIsBusy,
+            chatHistory,
+            setChatHistory,
+            setResponse,
+          }}
+        />
       </div>
     </div>
   );

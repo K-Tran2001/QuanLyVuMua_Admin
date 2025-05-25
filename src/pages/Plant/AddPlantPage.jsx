@@ -253,6 +253,7 @@ const AddPlantPage = () => {
                   //   ...request,
                   //   files: [dataReturn],
                   // });
+
                   setImages(dataReturn);
                 }}
               />

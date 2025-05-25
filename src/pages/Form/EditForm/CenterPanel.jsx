@@ -492,7 +492,7 @@ export default function CenterPanel({ type }) {
           setMode("edit");
         }}
         textButtomConfirm="Demo save data to sheet"
-        //hiddenButtomConfirm={true}
+        hiddenButtomConfirm={true}
       >
         <div className="grid grid-cols-1 gap-4">
           <div className="mb-8 space-y-2">

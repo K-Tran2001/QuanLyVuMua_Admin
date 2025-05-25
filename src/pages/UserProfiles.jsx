@@ -41,6 +41,14 @@ export default function UserProfiles() {
           <UserAddressCard />
           <div>
             <div className="mb-4">
+              <Label children={"Token"} />
+              <TextArea
+                rows={6}
+                value={request.token}
+                onChange={(value) => setRequest({ ...request, token: value })}
+              />
+            </div>
+            <div className="mb-4">
               <Label children={"Title"} />
               <Input
                 value={request.title}

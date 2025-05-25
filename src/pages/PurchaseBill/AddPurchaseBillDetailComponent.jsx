@@ -204,16 +204,16 @@ const AddPurchaseBillDetailComponent = ({
                             {itemDetail.productName}
                           </th>
                           <td className="px-6 py-4 text-end">
-                            {itemDetail.price}
+                            {itemDetail.price?.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-end">
-                            {itemDetail.number}
+                            {itemDetail.number?.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-end">
-                            {itemDetail.loss}
+                            {itemDetail.loss?.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-end">
-                            {itemDetail.total}
+                            {itemDetail.total?.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-end ">
                             <Button

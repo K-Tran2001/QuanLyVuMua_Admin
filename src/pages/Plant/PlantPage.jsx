@@ -33,6 +33,7 @@ import {
   setItemLocalStore,
 } from "../../hooks/useLocalStore";
 import UploadExcelFile from "../../components/upload-exce-file/UploadExcelFile";
+import { useDebouncedCallback } from "../../hooks/useDebounce";
 
 const PlantPage = () => {
   const navigate = useNavigate();
@@ -210,16 +211,24 @@ const PlantPage = () => {
     //window.location.href = `http://localhost:5000${data.url}`;
   };
 
-  const onDebounce = React.useCallback(
-    debounce((term) => {
-      setFilterPage({
-        ...filterPage,
-        keySearch: term.trim(),
-        page: 1,
-      });
-    }, 700),
-    []
-  );
+  // const onDebounce = React.useCallback(
+  //   debounce((term) => {
+  //     setFilterPage({
+  //       ...filterPage,
+  //       keySearch: term.trim(),
+  //       page: 1,
+  //     });
+  //   }, 700),
+  //   []
+  // );
+
+  const onDebounce = useDebouncedCallback((term) => {
+    setFilterPage((prev) => ({
+      ...prev,
+      keySearch: term.trim(),
+      page: 1,
+    }));
+  }, 700);
 
   React.useEffect(() => {
     LoadData();
@@ -345,8 +354,20 @@ const PlantPage = () => {
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
                 <TableCell
+                  onClick={() => {
+                    setFilterPage({
+                      ...filterPage,
+                      sortOptions: {
+                        sortField: "name",
+                        sortOrder:
+                          filterPage.sortOptions.sortOrder === "desc"
+                            ? "asc"
+                            : "desc",
+                      },
+                    });
+                  }}
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="cursor-pointer py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   Name / images
                 </TableCell>

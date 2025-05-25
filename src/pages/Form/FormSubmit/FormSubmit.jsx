@@ -41,11 +41,13 @@ const FormSubmit = () => {
       //data: JSON.stringify(dataToSave.formDetail),
       data: JSON.stringify(fields[type]),
     };
+    console.log("request", request);
     for (const key in request) {
       formDatab.append(key, request[key]);
     }
     const response = await addDataGoogleSheet(formDatab);
   };
+
   const LoadData = async () => {
     const dataReturn = await SeachForm(id, { formId: id });
     if (dataReturn.success) {
