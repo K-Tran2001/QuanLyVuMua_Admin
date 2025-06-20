@@ -26,6 +26,41 @@ export default function Home() {
     const dataFilter = getItemLocalStore("dashboardPageFilter");
     return dataFilter ? dataFilter : FILTERPAGE_INIT;
   });
+
+  var str = "khoa provip  ";
+  var str2 = "nhất";
+  var chu_a = "0";
+  function getUnicode(char) {
+    if (typeof char !== "string" || char.length !== 1) {
+      throw new Error("Input must be a single character string.");
+    }
+    return char.charCodeAt(0);
+  }
+  function getString(unicode) {
+    if (typeof unicode !== "number" || unicode < 48 || unicode > 57) {
+      throw new Error("Input must be a  number (from 48 to 57).");
+    }
+    return String.fromCharCode(unicode);
+  }
+
+  function countCharacters(str) {
+    const frequency = {};
+
+    for (let char of str) {
+      if (frequency[char]) {
+        frequency[char]++;
+      } else {
+        frequency[char] = 1;
+      }
+    }
+
+    return frequency;
+  }
+  // var array = [5, 8, 1, 4, 67, 22, 18, 22];
+  // var str_1 = "khoa";
+  // var str_2 = "koah ";
+  // console.log(str_1.split("").sort().join(""), str_2.split("").sort().join(""));
+
   return (
     <>
       <Filter

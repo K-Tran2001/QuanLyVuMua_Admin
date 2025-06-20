@@ -5,7 +5,6 @@ import "flatpickr/dist/flatpickr.css";
 import { CalenderIcon } from "../../../icons";
 const DatePicker = ({ initValue = null, onChange }) => {
   const [dateOfBirth, setDateOfBirth] = useState("");
-  console.log("dateOfBirth", dateOfBirth);
 
   const handleDateChange = (date) => {
     // setDateOfBirth(date[0].toLocaleDateString()); // Handle selected date and format it
